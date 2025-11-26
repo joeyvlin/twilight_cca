@@ -88,19 +88,19 @@ function App() {
             </div>
 
             <div className="grid grid-cols-2 gap-6">
-              <div>
+              <div className="border border-gray-700 rounded-lg p-4 bg-gradient-to-r from-gray-800/50 to-transparent hover:border-cyan-400 transition-colors">
                 <div className="text-sm text-gray-400 mb-2">Current Block</div>
                 <div className="text-2xl font-bold">#12547</div>
               </div>
-              <div>
+              <div className="border border-gray-700 rounded-lg p-4 bg-gradient-to-r from-gray-800/50 to-transparent hover:border-cyan-400 transition-colors">
                 <div className="text-sm text-gray-400 mb-2">Last Clearing Price</div>
                 <div className="text-2xl font-bold text-cyan-400">$589.42</div>
               </div>
-              <div>
+              <div className="border border-gray-700 rounded-lg p-4 bg-gradient-to-r from-gray-800/50 to-transparent hover:border-cyan-400 transition-colors">
                 <div className="text-sm text-gray-400 mb-2">Block Ends In</div>
                 <div className="text-2xl font-bold text-cyan-400">{formatTime(countdown1)}</div>
               </div>
-              <div>
+              <div className="border border-gray-700 rounded-lg p-4 bg-gradient-to-r from-gray-800/50 to-transparent hover:border-cyan-400 transition-colors">
                 <div className="text-sm text-gray-400 mb-2">Auction Ends In</div>
                 <div className="text-2xl font-bold text-cyan-400">{formatTime(countdown2)}</div>
               </div>
