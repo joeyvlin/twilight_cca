@@ -210,7 +210,7 @@ function App() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 h-fit">
             <div className="flex items-center gap-2 mb-6">
               <Circle className="w-5 h-5 text-cyan-400" />
               <h2 className="text-xl font-semibold">My Position</h2>
