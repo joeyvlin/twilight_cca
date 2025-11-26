@@ -221,7 +221,7 @@ function App() {
                 <div className="text-sm text-gray-400 mb-2">Token Balance</div>
                 <div className="text-3xl font-bold">
                   <span className="text-cyan-400">25.4</span>
-                  <span className="text-xl text-gray-400 ml-2">$mBTC</span>
+                  <span className="text-xl text-gray-400 ml-2">mBTC</span>
                 </div>
               </div>
 
