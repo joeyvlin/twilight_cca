@@ -115,7 +115,7 @@ function App() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-gray-400 mb-2 block">Budget Allocation (USDC)</label>
+                <label className="text-sm text-gray-400 mb-2 block">Budget Allocation</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
                   <input
@@ -127,7 +127,7 @@ function App() {
               </div>
 
               <div>
-                <label className="text-sm text-gray-400 mb-2 block">Maximum Price Limit ($mBTC)</label>
+                <label className="text-sm text-gray-400 mb-2 block">Maximum Price Limit</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
                   <input
