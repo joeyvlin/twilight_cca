@@ -229,7 +229,6 @@ function App() {
                 <div className="text-sm text-gray-400 mb-2">Average Entry Price</div>
                 <div className="text-2xl font-bold">$562.89</div>
               </div>
-
             </div>
           </div>
         </div>
