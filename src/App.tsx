@@ -1,4 +1,4 @@
-import { Wallet, Users, DollarSign } from 'lucide-react';
+import { Wallet, Users, DollarSign, HandCoins, UserCheck, Lock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Swap } from './components/Swap';
 import { MyPosition } from './components/MyPosition';
@@ -105,7 +105,7 @@ function App() {
               titleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
           >
-            Untraceable Bitcoin Privacy DEX
+                  Untraceable Bitcoin on a Privacy DEX
           </p>
         </div>
 
@@ -115,7 +115,10 @@ function App() {
             <AnimatedSection delay={0}>
               <TiltCard maxTilt={3} scale={1.01}>
                 <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                  <div className="text-xs sm:text-sm text-gray-400 mb-2 uppercase tracking-wide">Total Bids</div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <HandCoins className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
+                    <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Total Bids</div>
+                  </div>
                   <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>1,427</div>
                 </div>
               </TiltCard>
@@ -123,7 +126,10 @@ function App() {
             <AnimatedSection delay={100}>
               <TiltCard maxTilt={3} scale={1.01}>
                 <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                  <div className="text-xs sm:text-sm text-gray-400 mb-2 uppercase tracking-wide">Active Bidders</div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <UserCheck className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
+                    <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Active Bidders</div>
+                  </div>
                   <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>892</div>
                 </div>
               </TiltCard>
@@ -131,7 +137,10 @@ function App() {
             <AnimatedSection delay={200}>
               <TiltCard maxTilt={3} scale={1.01}>
                 <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                  <div className="text-xs sm:text-sm text-gray-400 mb-2 uppercase tracking-wide">Total Value Locked</div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Lock className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
+                    <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Total Value Locked</div>
+                  </div>
                   <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>$14,250,000</div>
                 </div>
             </TiltCard>
@@ -151,16 +160,17 @@ function App() {
             <div className="flex flex-col h-full">
               {auctionState === 'post-auction' ? (
                 <Swap />
-              ) : auctionState === 'auction-live' ? (
-                <Auction countdown1={countdown1} countdown2={countdown2} formatTime={formatTime} />
-              ) : (
-                <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 h-full flex items-center justify-center">
-                  <div className="text-center">
-                    <h2 className="text-xl sm:text-2xl font-semibold mb-2">Auction Starting Soon</h2>
-                    <p className="text-sm sm:text-base text-gray-400">Get ready to participate in the Twilight Token Auction</p>
-                  </div>
-                </div>
-              )}
+                    ) : auctionState === 'auction-live' ? (
+                      <Auction countdown1={countdown1} countdown2={countdown2} formatTime={formatTime} />
+                    ) : (
+                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 h-full flex items-center justify-center">
+                        <div className="text-center">
+                          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Auction Starting Soon</h2>
+                          <p className="text-sm sm:text-base text-gray-400 mb-2">Get ready to participate in the Twilight Token Auction</p>
+                          <p className={`text-sm sm:text-base ${themeClasses.textAccent} font-medium`}>December 23, 2005</p>
+                        </div>
+                      </div>
+                    )}
             </div>
           </AnimatedSection>
           <AnimatedSection delay={150} animation="fade-in">
