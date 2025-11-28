@@ -1,4 +1,4 @@
-import { Wallet, Users, DollarSign, HandCoins, UserCheck, Lock } from 'lucide-react';
+import { Wallet, Users, DollarSign, HandCoins, UserCheck, Lock, Coins, Clock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Swap } from './components/Swap';
 import { MyPosition } from './components/MyPosition';
@@ -111,41 +111,75 @@ function App() {
 
         <div className={`transition-opacity duration-1000 ease-out ${showContent ? 'opacity-100' : 'opacity-0'}`}>
           <AnimatedSection delay={100} animation="fade-in-up">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
-            <AnimatedSection delay={0}>
-              <TiltCard maxTilt={3} scale={1.01}>
-                <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                  <div className="flex items-center gap-2 mb-2">
-                    <HandCoins className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
-                    <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Total Bids</div>
-                  </div>
-                  <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>1,427</div>
+            {auctionState === 'pre-auction' ? (
+              <div className="flex justify-center gap-4 sm:gap-6 mb-8 sm:mb-12">
+                <div className="w-1/3">
+                  <AnimatedSection delay={0}>
+                    <TiltCard maxTilt={3} scale={1.01}>
+                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Coins className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
+                          <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Tokens Available</div>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>5M</div>
+                          <div className="text-xs sm:text-sm text-gray-500">5% of total supply</div>
+                        </div>
+                      </div>
+                    </TiltCard>
+                  </AnimatedSection>
                 </div>
-              </TiltCard>
-            </AnimatedSection>
-            <AnimatedSection delay={100}>
-              <TiltCard maxTilt={3} scale={1.01}>
-                <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                  <div className="flex items-center gap-2 mb-2">
-                    <UserCheck className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
-                    <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Active Bidders</div>
-                  </div>
-                  <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>892</div>
+                <div className="w-1/3">
+                  <AnimatedSection delay={100}>
+                    <TiltCard maxTilt={3} scale={1.01}>
+                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
+                          <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Auction Length</div>
+                        </div>
+                        <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>5 blocks</div>
+                      </div>
+                    </TiltCard>
+                  </AnimatedSection>
                 </div>
-              </TiltCard>
-            </AnimatedSection>
-            <AnimatedSection delay={200}>
-              <TiltCard maxTilt={3} scale={1.01}>
-                <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Lock className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
-                    <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Total Value Locked</div>
-                  </div>
-                  <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>$14,250,000</div>
-                </div>
-            </TiltCard>
-          </AnimatedSection>
-            </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
+                <AnimatedSection delay={0}>
+                  <TiltCard maxTilt={3} scale={1.01}>
+                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
+                      <div className="flex items-center gap-2 mb-2">
+                        <HandCoins className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
+                        <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Total Bids</div>
+                      </div>
+                      <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>1,427</div>
+                    </div>
+                  </TiltCard>
+                </AnimatedSection>
+                <AnimatedSection delay={100}>
+                  <TiltCard maxTilt={3} scale={1.01}>
+                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
+                      <div className="flex items-center gap-2 mb-2">
+                        <UserCheck className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
+                        <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Active Bidders</div>
+                      </div>
+                      <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>892</div>
+                    </div>
+                  </TiltCard>
+                </AnimatedSection>
+                <AnimatedSection delay={200}>
+                  <TiltCard maxTilt={3} scale={1.01}>
+                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Lock className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
+                        <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Total Value Locked</div>
+                      </div>
+                      <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>$14,250,000</div>
+                    </div>
+                  </TiltCard>
+                </AnimatedSection>
+              </div>
+            )}
           </AnimatedSection>
 
           <AnimatedSection delay={200} animation="fade-in-up">
