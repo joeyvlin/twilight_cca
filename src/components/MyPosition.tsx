@@ -25,24 +25,24 @@ export function MyPosition({
         <h2 className="text-lg sm:text-xl font-semibold">My Position</h2>
       </div>
 
-      <div className="space-y-4 sm:space-y-6">
-        <div>
+      <div className="grid grid-cols-3 gap-4 sm:gap-6">
+        <div className="text-center">
           <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">Token Balance</div>
-          <div className="text-xl sm:text-2xl font-bold">
+          <div className="text-lg sm:text-xl md:text-2xl font-bold">
             {auctionState === 'pre-auction' ? (
               <span className="text-gray-500">—</span>
             ) : (
               <>
                 <span className={themeClasses.textAccent}>{tokenBalance}</span>
-                <span className="text-base sm:text-lg text-gray-400 ml-1 sm:ml-2">mBTC</span>
+                <span className="text-sm sm:text-base text-gray-400 ml-1 sm:ml-2">mBTC</span>
               </>
             )}
           </div>
         </div>
 
-        <div>
+        <div className="text-center">
           <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">Average Entry Price</div>
-          <div className="text-xl sm:text-2xl font-bold">
+          <div className="text-lg sm:text-xl md:text-2xl font-bold">
             {auctionState === 'pre-auction' ? (
               <span className="text-gray-500">—</span>
             ) : (
@@ -51,9 +51,9 @@ export function MyPosition({
           </div>
         </div>
 
-        <div>
+        <div className="text-center">
           <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">Estimated Value</div>
-          <div className="text-xl sm:text-2xl font-bold">
+          <div className="text-lg sm:text-xl md:text-2xl font-bold">
             {auctionState === 'pre-auction' ? (
               <span className="text-gray-500">—</span>
             ) : (
