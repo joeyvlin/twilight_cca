@@ -36,9 +36,9 @@ export function Auction({
   return (
     <ElectricBorder
       color="#7df9ff"
-      speed={1}
-      chaos={0.5}
-      thickness={2}
+      speed={0.75}
+      chaos={0.375}
+      thickness={1.5}
       style={{ borderRadius: 16 }}
       className="h-full"
     >
