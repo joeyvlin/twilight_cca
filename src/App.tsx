@@ -1,5 +1,6 @@
 import { Wallet, Users, DollarSign, HandCoins, UserCheck, Lock, Coins, Clock } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { AnimatedNumber } from './components/AnimatedNumber';
 import { Swap } from './components/Swap';
 import { MyPosition } from './components/MyPosition';
 import { Auction } from './components/Auction';
@@ -55,6 +56,7 @@ function App() {
     volume24h: 1254000,
   });
   
+  
   // TODO: Fetch data from API/data source
   // useEffect(() => {
   //   Promise.all([
@@ -101,6 +103,22 @@ function App() {
 
     return () => clearInterval(timer);
   }, []);
+
+  // Simulate new transactions - increment values periodically
+  useEffect(() => {
+    if (auctionState === 'pre-auction') return;
+    
+    const transactionInterval = setInterval(() => {
+      _setSummaryData(prev => ({
+        ...prev,
+        totalBids: prev.totalBids + Math.floor(Math.random() * 3) + 1, // Increment by 1-3
+        activeBidders: prev.activeBidders + (Math.random() > 0.7 ? 1 : 0), // Occasionally increment
+        totalValueLocked: prev.totalValueLocked + Math.floor(Math.random() * 50000) + 10000, // Increment by 10k-60k
+      }));
+    }, 3000); // Update every 3 seconds
+
+    return () => clearInterval(transactionInterval);
+  }, [auctionState]);
 
   const formatTime = (time: { hours: number; minutes: number; seconds: number }) => {
     return `${String(time.hours).padStart(2, '0')}:${String(time.minutes).padStart(2, '0')}:${String(time.seconds).padStart(2, '0')}`;
@@ -197,7 +215,13 @@ function App() {
                         <HandCoins className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
                         <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Total Bids</div>
                       </div>
-                      <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>{summaryData.totalBids.toLocaleString()}</div>
+                      <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>
+                        <AnimatedNumber 
+                          value={summaryData.totalBids} 
+                          duration={1500}
+                          enabled={true}
+                        />
+                      </div>
                     </div>
                   </TiltCard>
                 </AnimatedSection>
@@ -208,7 +232,13 @@ function App() {
                         <UserCheck className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
                         <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Active Bidders</div>
                       </div>
-                      <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>{summaryData.activeBidders.toLocaleString()}</div>
+                      <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>
+                        <AnimatedNumber 
+                          value={summaryData.activeBidders} 
+                          duration={1500}
+                          enabled={true}
+                        />
+                      </div>
                     </div>
                   </TiltCard>
                 </AnimatedSection>
@@ -219,7 +249,14 @@ function App() {
                         <Lock className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`} />
                         <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">Total Value Locked</div>
                       </div>
-                      <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>${summaryData.totalValueLocked.toLocaleString()}</div>
+                      <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}>
+                        <AnimatedNumber 
+                          value={summaryData.totalValueLocked} 
+                          duration={1500}
+                          enabled={true}
+                          formatter={(v) => `$${v.toLocaleString()}`}
+                        />
+                      </div>
                     </div>
                   </TiltCard>
                 </AnimatedSection>
