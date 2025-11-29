@@ -1,17 +1,18 @@
-<FAQ>Twilight Token Continuous Clearing Auction (CCA)
+<FAQ>Twilight Token Lightning Sale (Continuous Clearing Auction)
 
 What is a continuous clearing auction?
 
- It is an auction format where bids and asks are matched continuously, block by block, allowing real-time price discovery and gradual token distribution instead of discrete, single-round events.
+ CCA is an auction format where bids and asks are matched continuously, block by block, allowing real-time price discovery and gradual token distribution instead of discrete, single-round events. For every block there is a certain quantity of token available, and the auction comes up with a single fair price for those tokens. This continues until the last block, where the remaining token gets transferred into a liquidity pool. 
 
-What is the high-level flow of the auction?
+On a high level, what is the flow of the Twilight Token Lightning Sale auction?
 
  The high level flow is as follows:
-    (1) Any during the live auction (time will be announced on the Twilight Token Lightning Sale website), you can fill out the maximum budget and price you are genuinely willing to pay and deposit the full amount (refundable) to our auction smart contract.
-    (2) At the end of each block a clearing price will be calculated for that block depending on the bidding demand. Folks who bid at or above the average price will get to purchase tokens at the same clearing price while others may get no allocation or partial fills.
-    (3) At the end of each block, anyone who did not get any fills will see their deposits refunded.
-    (4) You can add in as many bids as you like during any block as long as the bids are above the floor price for that block, and that the auction has not ended.
-    (5) At the end of the auction, a liquidity pool on Uniswap will be automatically created to allow people to trade their Twilight Token. 
+    (1) From the time the lightning sale auction begins until it ends, you can fill out the maximum budget and price you are genuinely willing to pay, then deposit the full amount (refundable) to the auction smart contract from Uniswap.
+    (2) The auction consist of 10 epochs, each consisting of blocks. There is a certain number of tokens available for each block. At the end of each block a clearing price will be finalized based on the cumulative demand. Everyone who placed max bids at or above the average price (avg price = total maximum budget / block token supply) will get to purchase tokens at the same clearing price while those may get no allocation or partial fills.
+    (3) At the end of each block, anyone who did not get any fills will see their deposits refunded, while those with only partial fills will have the portion of their unfilled bids carried over to the next block.
+    (4) You can add in as many bids as you like during any block as long as the bids are above the floor price for that bloc AND that the auction has not ended.
+    (5) The clearing price for a block becomes the floor price for the next block.
+    (6) At the end of the auction, a liquidity pool on Uniswap will be automatically created to allow people to trade their Twilight Token. The Lightning Sale Auction page will host interface for the swap.
 
 How is the clearing price for each block determined?
 
@@ -19,7 +20,7 @@ How is the clearing price for each block determined?
 
 What can I do to increase my chance of getting full allocation for the tokens?
 
- The best and proven way to get allocation is to put in an honest bid for the maximum price you are willing to buy Twilight Tokens. Bidding lower than everyone else will likely result in getting no fills on your bids, while bidding higher than everyone else may result in paying more than you had to. You won't need to worry about buying at higher prices than others because everyone in the same batch buys at the same price, and bidders that come in in later blocks will not be able to buy at a lower price than yours.
+ The best way to get allocation is to put in an honest bid as early as possible at the maximum price you are willing to buy Twilight Tokens. Bidding lower than everyone else will likely result in getting no fills on your bids, while at the same time you wouldn't want to overpay. You won't need to worry about paying more than everyone else because everyone in the same block transactions at the same clearing price, and bidders that come in in later blocks will not be able to buy at a lower price than yours.
 
 What is the Fully Diluted Value (FDV) of the token at the floor price?
 
@@ -37,9 +38,9 @@ What is Twilight?
 
  Twilight is a decentralized exchange (DEX) focused on Bitcoin perpetual futures trading with strong privacy features. Unlike regular Bitcoin trading platforms, Twilight offers untraceable Bitcoin positions, enabling traders to open long or short levered positions while keeping trade and profit & loss (PnL) data private.
 
-What is the progress with the protocol?
+What is the status of the protocol?
 
-Twilight's code is open source, with a public testnet launch planned for December 2025 and mainnet targeted for Q1 2026. The platform supports fast client-side proof generation and high transaction throughput up to 1,000 tx/s.
+Twilight's code is now open-sourced, with a public testnet launch planned for December 2025 and mainnet to soon follow. The platform supports fast client-side proof generation and high transaction throughput up to 1,000 tx/s.
 
 Who is behind Twilight?
 
