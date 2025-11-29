@@ -66,14 +66,14 @@ export default {
             transform: 'translateX(100%)',
           },
           '100%': {
-            transform: 'translateX(-50%)',
+            transform: 'translateX(-100%)',
           },
         },
       },
       animation: {
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'fade-in': 'fade-in 0.6s ease-out forwards',
-        'marquee': 'marquee 7.5s linear infinite',
+        'marquee': 'marquee 9s linear infinite',
       },
       perspective: {
         '1000': '1000px',

@@ -204,7 +204,7 @@ function App() {
     <div className={`min-h-screen ${themeClasses.mainBackground} text-white`}>
       {/* Lightning Background - with transparency */}
       {currentPage === 'home' && auctionState !== 'post-auction' && (
-        <div className="absolute top-0 left-0 right-0 z-0 pointer-events-none" style={{ height: '100vh' }}>
+        <div className="absolute top-0 left-0 right-0 z-0 pointer-events-none" style={{ height: '200vh' }}>
           <Lightning 
             hue={186}
             xOffset={0}
@@ -300,7 +300,7 @@ function App() {
       <AnnouncementBanner state={auctionState} />
 
       {currentPage === 'home' && (
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 z-10">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-2 pb-4 sm:py-6 z-10">
         <div className="mb-4 sm:mb-6 overflow-visible pt-0 relative z-10">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-2 md:gap-3 overflow-visible pt-0">
             {/* Title Container */}
@@ -327,7 +327,7 @@ function App() {
                 Untraceable Bitcoin on Privacy DEX
               </p>
             </div>
-            <div className="flex-shrink-0 overflow-visible mt-4 sm:mt-6">
+            <div className="flex-shrink-0 overflow-visible mt-2 sm:mt-6">
               <AnimatedSection delay={0} animation="fade-in-up">
                 <BitcoinShield className="h-[196px] sm:h-[224px] md:h-[252px] lg:h-[280px]" />
               </AnimatedSection>

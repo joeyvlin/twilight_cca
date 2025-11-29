@@ -13,17 +13,14 @@ const messages = {
 export function AnnouncementBanner({ state }: AnnouncementBannerProps) {
   const themeClasses = useThemeClasses();
   const message = messages[state];
-  // Single message instance - only one copy visible at a time
-  const messageWithSpacing = `${message}        •        `;
+  const messageWithSpacing = `${message}                    •                    `;
 
   return (
     <div className={`relative ${themeClasses.bgGradient} overflow-hidden py-2 z-10`}>
       <div className="relative w-full">
         <div className="flex animate-marquee whitespace-nowrap">
-          <span className={`text-sm sm:text-base ${themeClasses.textAccent} font-medium px-4 inline-block`}>
-            {messageWithSpacing}
-          </span>
-          <span className={`text-sm sm:text-base ${themeClasses.textAccent} font-medium px-4 inline-block ml-[100vw]`}>
+          {/* Single message instance */}
+          <span className={`text-sm sm:text-base ${themeClasses.textAccent} font-medium inline-block`}>
             {messageWithSpacing}
           </span>
         </div>
