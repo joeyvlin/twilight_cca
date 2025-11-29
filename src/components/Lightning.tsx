@@ -31,7 +31,11 @@ const Lightning = memo(function Lightning({
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const gl = canvas.getContext('webgl');
+    const gl = canvas.getContext('webgl', { 
+      alpha: true, 
+      premultipliedAlpha: false,
+      antialias: true
+    });
     if (!gl) {
       console.error('WebGL not supported');
       return;
@@ -116,7 +120,10 @@ const Lightning = memo(function Lightning({
           vec3 baseColor = hsv2rgb(vec3(uHue / 360.0, 0.7, 0.8));
           vec3 col = baseColor * pow(mix(0.0, 0.07, hash11(iTime * uSpeed)) / dist, 1.0) * uIntensity;
           col = pow(col, vec3(1.0));
-          fragColor = vec4(col, 1.0);
+          
+          // Calculate alpha based on color intensity (brightness)
+          float alpha = min(length(col) * 0.5, 1.0);
+          fragColor = vec4(col, alpha);
       }
 
       void main() {
@@ -159,6 +166,11 @@ const Lightning = memo(function Lightning({
 
     gl.useProgram(program);
 
+    // Enable transparency
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0, 0, 0, 0);
+
     const vertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
     const vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -182,6 +194,7 @@ const Lightning = memo(function Lightning({
     const render = () => {
       resizeCanvas();
       gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform2f(iResolutionLocation, canvas.width, canvas.height);
 
       const currentTime = performance.now();
