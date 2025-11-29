@@ -10,7 +10,7 @@
   will-change: transform;
   transform: translateZ(0);
   /* Add padding to provide space for extended border layers */
-  padding: 8px;
+  padding: 3px;
   box-sizing: border-box;
 }
 
@@ -27,17 +27,17 @@
 .eb-content {
   position: relative;
   border-radius: inherit;
-  z-index: 1;
+  z-index: 5;
   height: 100%;
   width: 100%;
 }
 
 .eb-layers {
   position: absolute;
-  inset: -8px;
+  inset: -3px;
   border-radius: inherit;
   pointer-events: none;
-  z-index: 2;
+  z-index: 10;
   will-change: filter;
   transform: translateZ(0);
 }
@@ -49,7 +49,7 @@
 .eb-overlay-2,
 .eb-background-glow {
   position: absolute;
-  inset: -8px;
+  inset: -3px;
   border-radius: inherit;
   pointer-events: none;
   box-sizing: border-box;
