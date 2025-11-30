@@ -31,7 +31,7 @@ const themeColors = {
 };
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('fire');
+  const [theme, setTheme] = useState<Theme>('ice');
 
   const colors = themeColors[theme];
 
