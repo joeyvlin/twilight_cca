@@ -943,7 +943,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
             <p className="text-xs sm:text-sm text-gray-500 text-center sm:text-left">
-              © 2024 Twilight Protocol. All rights reserved.
+              © 2025 Twilight Protocol. All rights reserved.
             </p>
             <div className="flex items-center gap-3 sm:gap-6 flex-wrap justify-center">
               <a
