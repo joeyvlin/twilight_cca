@@ -989,7 +989,7 @@ function App() {
         </div>
       </footer>
       {/* Contract Connection Test - Remove after testing */}
-      {/*<ContractTest />*/}
+      {/*ContractTest />*/}
     </div>
   );
 }

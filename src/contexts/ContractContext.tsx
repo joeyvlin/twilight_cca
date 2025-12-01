@@ -10,7 +10,7 @@ import {
   auctionContractConfig,
   stateLensContractConfig,
 } from "../config/contract";
-import { CONTRACT_QUERY_CONFIG } from "../config/constants";
+import { CONTRACT_QUERY_CONFIG, BLOCK_QUERY_CONFIG, BID_QUERY_CONFIG, STATIC_QUERY_CONFIG } from "../config/constants";
 import { validateContractConfig } from "../utils/contractValidation";
 import { Address } from "viem";
 
@@ -142,7 +142,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
   const { address, isConnected } = useAccount();
   const { data: currentBlock } = useBlockNumber({
     watch: true,
-    query: CONTRACT_QUERY_CONFIG,
+    query: BLOCK_QUERY_CONFIG,
   });
 
   // Validate contract configuration on mount
@@ -164,7 +164,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
   // STATE LENS (Preferred - single call for bulk data)
   // ============================================
   const {
-    data: auctionState,
+    data: auctionStateRaw,
     isLoading: isLoadingState,
     error: stateError,
     refetch: refetchState,
@@ -181,6 +181,8 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  // Type assertion for auction state
+  const auctionState = auctionStateRaw as AuctionState | undefined;
   // ============================================
   // INDIVIDUAL CONTRACT READS
   // ============================================
@@ -195,7 +197,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     ...auctionContractConfig,
     functionName: "clearingPrice",
     query: {
-      ...CONTRACT_QUERY_CONFIG,
+      ...STATIC_QUERY_CONFIG,
       enabled: isConfigValid,
     },
   });
@@ -210,7 +212,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     functionName: "currencyRaised",
     query: {
       ...CONTRACT_QUERY_CONFIG,
-      enabled: isConfigValid,
+      enabled: isConfigValid && !auctionState,
     },
   });
 
@@ -224,7 +226,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     functionName: "totalCleared",
     query: {
       ...CONTRACT_QUERY_CONFIG,
-      enabled: isConfigValid,
+      enabled: isConfigValid && !auctionState,
     },
   });
 
@@ -238,7 +240,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     functionName: "isGraduated",
     query: {
       ...CONTRACT_QUERY_CONFIG,
-      enabled: isConfigValid,
+      enabled: isConfigValid && !auctionState,
     },
   });
 
@@ -252,7 +254,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     ...auctionContractConfig,
     functionName: "startBlock",
     query: {
-      ...CONTRACT_QUERY_CONFIG,
+      ...STATIC_QUERY_CONFIG,
       enabled: isConfigValid,
     },
   });
@@ -266,7 +268,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     ...auctionContractConfig,
     functionName: "endBlock",
     query: {
-      ...CONTRACT_QUERY_CONFIG,
+      ...STATIC_QUERY_CONFIG,
       enabled: isConfigValid,
     },
   });
@@ -280,7 +282,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     ...auctionContractConfig,
     functionName: "claimBlock",
     query: {
-      ...CONTRACT_QUERY_CONFIG,
+      ...STATIC_QUERY_CONFIG,
       enabled: isConfigValid,
     },
   });
@@ -309,7 +311,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     ...auctionContractConfig,
     functionName: "floorPrice",
     query: {
-      ...CONTRACT_QUERY_CONFIG,
+      ...STATIC_QUERY_CONFIG,
       enabled: isConfigValid,
     },
   });
@@ -323,7 +325,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     ...auctionContractConfig,
     functionName: "tickSpacing",
     query: {
-      ...CONTRACT_QUERY_CONFIG,
+      ...STATIC_QUERY_CONFIG,
       enabled: isConfigValid,
     },
   });
@@ -352,7 +354,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     ...auctionContractConfig,
     functionName: "token",
     query: {
-      ...CONTRACT_QUERY_CONFIG,
+      ...STATIC_QUERY_CONFIG,
       enabled: isConfigValid,
     },
   });
@@ -366,7 +368,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     ...auctionContractConfig,
     functionName: "currency",
     query: {
-      ...CONTRACT_QUERY_CONFIG,
+      ...STATIC_QUERY_CONFIG,
       enabled: isConfigValid,
     },
   });
@@ -380,7 +382,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     ...auctionContractConfig,
     functionName: "totalSupply",
     query: {
-      ...CONTRACT_QUERY_CONFIG,
+      ...STATIC_QUERY_CONFIG,
       enabled: isConfigValid,
     },
   });
@@ -465,9 +467,9 @@ export function ContractProvider({ children }: { children: ReactNode }) {
 
   const isLoading =
     isLoadingClearingPrice ||
-    isLoadingCurrencyRaised ||
-    isLoadingTotalCleared ||
-    isLoadingGraduated ||
+    (isLoadingState ? false : isLoadingCurrencyRaised) || // Skip if State Lens is loading
+    (isLoadingState ? false : isLoadingTotalCleared) ||
+    (isLoadingState ? false : isLoadingGraduated) ||
     isLoadingNextBidId ||
     isLoadingCheckpoint;
 
@@ -487,49 +489,49 @@ export function ContractProvider({ children }: { children: ReactNode }) {
   // ERROR AGGREGATION
   // ============================================
 
-const errors = useMemo(
-  () => ({
-    clearingPrice: clearingPriceError,
-    currencyRaised: currencyRaisedError,
-    totalCleared: totalClearedError,
-    isGraduated: isGraduatedError,
-    stateLens: stateError,
-    blocks:
-      startBlockError ||
-      endBlockError ||
-      claimBlockError ||
+  const errors = useMemo(
+    () => ({
+      clearingPrice: clearingPriceError,
+      currencyRaised: currencyRaisedError,
+      totalCleared: totalClearedError,
+      isGraduated: isGraduatedError,
+      stateLens: stateError,
+      blocks:
+        startBlockError ||
+        endBlockError ||
+        claimBlockError ||
+        lastCheckpointedBlockError,
+      // Add missing errors
+      floorPrice: floorPriceError,
+      tickSpacing: tickSpacingError,
+      nextActiveTickPrice: nextActiveTickPriceError,
+      token: tokenError,
+      currency: currencyError,
+      totalSupply: totalSupplyError,
+      checkpoint: checkpointError,
+      nextBidId: nextBidIdError,
+    }),
+    [
+      clearingPriceError,
+      currencyRaisedError,
+      totalClearedError,
+      isGraduatedError,
+      stateError,
+      startBlockError,
+      endBlockError,
+      claimBlockError,
       lastCheckpointedBlockError,
-    // Add missing errors
-    floorPrice: floorPriceError,
-    tickSpacing: tickSpacingError,
-    nextActiveTickPrice: nextActiveTickPriceError,
-    token: tokenError,
-    currency: currencyError,
-    totalSupply: totalSupplyError,
-    checkpoint: checkpointError,
-    nextBidId: nextBidIdError,
-  }),
-  [
-    clearingPriceError,
-    currencyRaisedError,
-    totalClearedError,
-    isGraduatedError,
-    stateError,
-    startBlockError,
-    endBlockError,
-    claimBlockError,
-    lastCheckpointedBlockError,
-    // Add missing error dependencies
-    floorPriceError,
-    tickSpacingError,
-    nextActiveTickPriceError,
-    tokenError,
-    currencyError,
-    totalSupplyError,
-    checkpointError,
-    nextBidIdError,
-  ]
-);
+      // Add missing error dependencies
+      floorPriceError,
+      tickSpacingError,
+      nextActiveTickPriceError,
+      tokenError,
+      currencyError,
+      totalSupplyError,
+      checkpointError,
+      nextBidIdError,
+    ]
+  );
 
   // ============================================
   // REFETCH FUNCTIONS
@@ -582,9 +584,12 @@ const errors = useMemo(
 
     // Auction state
     clearingPrice: clearingPrice as bigint | undefined,
-    currencyRaised: currencyRaised as bigint | undefined,
-    totalCleared: totalCleared as bigint | undefined,
-    isGraduated: isGraduated as boolean | undefined,
+    currencyRaised:
+      auctionState?.currencyRaised ?? (currencyRaised as bigint | undefined),
+    totalCleared:
+      auctionState?.totalCleared ?? (totalCleared as bigint | undefined),
+    isGraduated:
+      auctionState?.isGraduated ?? (isGraduated as boolean | undefined),
 
     // Blocks
     startBlock: startBlock as bigint | undefined,

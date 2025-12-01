@@ -495,6 +495,8 @@ export function useBidSubmittedEvent(onLogs?: (logs: any[]) => void) {
   useWatchContractEvent({
     ...auctionContractConfig,
     eventName: "BidSubmitted",
+    poll: true, // Enable polling to catch events
+    pollingInterval: 4000, // Poll every 4 seconds
     onLogs(logs) {
       console.log("New bid submitted:", logs);
       onLogs?.(logs);

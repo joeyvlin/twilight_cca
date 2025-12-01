@@ -12,9 +12,10 @@ import {
 } from "wagmi";
 
 // Get RPC URL from environment variable, fallback to public endpoint
-const sepoliaRpcUrl =
-  import.meta.env.VITE_SEPOLIA_RPC_URL ||
-  "https://ethereum-sepolia-rpc.publicnode.com";
+// const sepoliaRpcUrl =
+//   import.meta.env.VITE_SEPOLIA_RPC_URL ||
+//   "https://ethereum-sepolia-rpc.publicnode.com";
+const sepoliaRpcUrl = "https://ethereum-sepolia-rpc.publicnode.com";
 
 const config = createConfig({
   chains: [sepolia],

@@ -8,8 +8,69 @@ import { useContract } from "../contexts/ContractContext";
 import { useUserBids, useBidData } from "../hooks/useUserBids";
 import { parseEther } from "viem";
 
+
 interface MyBidProps {
   activeBids?: Array<{ id: string; budget: number; maxPrice: number }>; // Keep for backward compatibility, but won't be used
+}
+
+/**
+ * Parse error and return user-friendly message
+ */
+function parseError(error: any): string {
+  if (!error) return "An unknown error occurred";
+
+  // Check for user rejection errors
+  const errorMessage = error?.message?.toLowerCase() || "";
+  const errorCode = error?.code || error?.shortMessage || "";
+
+  // User rejected transaction in MetaMask
+  if (
+    errorCode === 4001 ||
+    errorCode === "ACTION_REJECTED" ||
+    errorMessage.includes("user rejected") ||
+    errorMessage.includes("user denied") ||
+    errorMessage.includes("rejected") ||
+    errorMessage.includes("denied transaction")
+  ) {
+    return "Transaction was cancelled. No changes were made.";
+  }
+
+  // Network errors
+  if (
+    errorMessage.includes("network") ||
+    errorMessage.includes("connection") ||
+    errorMessage.includes("timeout")
+  ) {
+    return "Network error. Please check your connection and try again.";
+  }
+
+  // Insufficient funds
+  if (
+    errorMessage.includes("insufficient funds") ||
+    errorMessage.includes("balance") ||
+    errorCode === "INSUFFICIENT_FUNDS"
+  ) {
+    return "Insufficient funds. Please check your wallet balance.";
+  }
+
+  // Gas estimation errors
+  if (errorMessage.includes("gas") || errorMessage.includes("execution reverted")) {
+    return "Transaction failed. Please check your bid parameters and try again.";
+  }
+
+  // Return original message if it's short and readable, otherwise generic message
+  const originalMessage = error?.message || error?.shortMessage || "";
+  if (originalMessage && originalMessage.length < 100) {
+    return originalMessage;
+  }
+
+  return "Transaction failed. Please try again.";
+}
+/**
+ * Get Etherscan URL for a transaction hash on Sepolia
+ */
+function getEtherscanUrl(txHash: string): string {
+  return `https://sepolia.etherscan.io/tx/${txHash}`;
 }
 
 // Component to fetch and display a single bid
@@ -20,12 +81,14 @@ function BidItem({ bidId }: { bidId: bigint }) {
 
   // Debug logging
   useEffect(() => {
-    console.log("BidItem Debug:", {
-      bidId: bidId.toString(),
-      isLoading,
-      error: error?.message,
-      bidData,
-    });
+    if (process.env.NODE_ENV === "development") {
+      console.log("BidItem Debug:", {
+        bidId: bidId.toString(),
+        isLoading,
+        error: error?.message,
+        bidData,
+      });
+    }
   }, [bidId, isLoading, error, bidData]);
 
   if (isLoading) {
@@ -60,29 +123,29 @@ function BidItem({ bidId }: { bidId: bigint }) {
     <div className="flex justify-between items-center gap-4 pb-3 border-b border-gray-700 last:border-0 last:pb-0">
       <div>
         <label className="text-xs sm:text-sm text-gray-400 mb-1 block">
-          Budget
+          Bid Amount (ETH)
         </label>
         <div className="text-sm sm:text-base font-semibold">
-          {bidData.budget.toFixed(4)} ETH
+          {bidData.budget.toFixed(4)} 
         </div>
       </div>
       <div>
         <label className="text-xs sm:text-sm text-gray-400 mb-1 block">
-          Max. Price
+          Max. Price (ETH)
         </label>
         <div className="text-sm sm:text-base font-semibold">
-          {bidData.maxPrice.toFixed(6)} ETH
+          {bidData.maxPrice.toFixed(6)} 
         </div>
       </div>
     </div>
   );
 }
 
-function ActiveBids() {
+function ActiveBids({ bidIds }: { bidIds: bigint[] }) {
   const themeClasses = useThemeClasses();
   const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
   const { address, isConnected } = useWeb3();
-  const { bidIds } = useUserBids();
+  // const { bidIds } = useUserBids();
 
   return (
     <div
@@ -125,14 +188,81 @@ export function MyBid({ activeBids }: MyBidProps) {
   const themeClasses = useThemeClasses();
   const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
   const { address, isConnected } = useWeb3();
-  const { tickSpacing, floorPrice, isLoadingPriceParams } = useContract();
-  const { submitBid, isPending, isConfirming, isSuccess, error } =
+  const { tickSpacing, floorPrice, isLoadingPriceParams, nextBidId } =
+    useContract();
+  const { submitBid, isPending, isConfirming, isSuccess, error, hash } =
     useSubmitBid();
+  const { bidIds, refetch: refetchBids } = useUserBids();
 
   const [budget, setBudget] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [txHash, setTxHash] = useState<string>("");
+  // Clear errors when user starts typing or when transaction state resets
+  useEffect(() => {
+    if (submitError) {
+      const timer = setTimeout(() => {
+        setSubmitError(null);
+      }, 3000); // Auto-clear after 3 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [submitError]);
 
+  // // Clear errors when transaction succeeds
+  // useEffect(() => {
+  //   if (isSuccess) {
+  //     setSubmitError(null);
+  //   }
+  // }, [isSuccess]);
+  // Clear form fields after successful submission
+  // Handle success state and clear form after delay
+  useEffect(() => {
+    if (isSuccess) {
+      setShowSuccess(true);
+      setSubmitError(null);
+
+      // Store the hash so it persists even if wagmi resets it
+      if (hash) {
+        setTxHash(hash);
+        console.log("💾 Stored transaction hash:", hash);
+      }
+      // Clear form and hide success message after 3 seconds
+      const timer = setTimeout(() => {
+        setBudget("");
+        setMaxPrice("");
+        setShowSuccess(false);
+      }, 3000); // Show success for 3 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, hash]);
+  // Store hash when it becomes available (even before success)
+  useEffect(() => {
+    if (hash) {
+      console.log("🔗 Transaction hash available:", hash);
+      setTxHash(hash);
+    }
+  }, [hash]);
+  // Clear success message when user starts entering new bid
+  useEffect(() => {
+    if (showSuccess && (budget || maxPrice)) {
+      setShowSuccess(false);
+    }
+  }, [budget, maxPrice, showSuccess]);
+  // Clear errors when user starts a new transaction attempt
+  useEffect(() => {
+    if (isPending) {
+      setSubmitError(null);
+    }
+  }, [isPending]);
+
+  // Clear errors when user starts typing (optional - provides immediate feedback)
+  useEffect(() => {
+    if (submitError && (budget || maxPrice)) {
+      // Clear error immediately when user starts editing
+      setSubmitError(null);
+    }
+  }, [budget, maxPrice]);
   /**
    * Convert ETH price to Q96 format, aligned to tickSpacing
    * tickSpacing defines the minimum price increment in Q96 format
@@ -159,6 +289,8 @@ export function MyBid({ activeBids }: MyBidProps) {
   };
 
   const handleSubmitBid = async () => {
+    setTxHash("");
+    setShowSuccess(false);
     if (!isConnected || !address) {
       setSubmitError("Please connect your wallet first");
       return;
@@ -220,21 +352,82 @@ export function MyBid({ activeBids }: MyBidProps) {
       );
     } catch (err: any) {
       console.error("Error submitting bid:", err);
-      setSubmitError(err?.message || "Failed to submit bid. Please try again.");
+      const friendlyError = parseError(err);
+      setSubmitError(friendlyError);
     }
   };
 
   // Reset form on success
+  // After successful bid submission
+  // Extract bid ID using nextBidId after successful submission
+  // Extract bid ID using nextBidId after successful submission
   useEffect(() => {
-    if (isSuccess) {
-      const timer = setTimeout(() => {
-        setBudget("");
-        setMaxPrice("");
-        setSubmitError(null);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [isSuccess]);
+    const addBidFromNextBidId = async () => {
+      if (isSuccess && address) {
+        console.log(
+          "✅ Bid submitted successfully, waiting for contract update..."
+        );
+
+        // Wait for the transaction to be mined and contract to update
+        await new Promise((resolve) => setTimeout(resolve, 5000)); // Increased to 5 seconds
+
+        // Refetch nextBidId to get the updated value
+        // Note: We need to get the current nextBidId value
+        // Since we can't directly refetch here, we'll use the value from context
+        // But it might not be updated yet, so we'll try a different approach
+
+        if (nextBidId && nextBidId > 0n) {
+          // The bid ID should be nextBidId - 1 (since it increments after submission)
+          const bidId = (nextBidId - 1n).toString();
+
+          console.log(
+            "📝 Adding bid ID from nextBidId:",
+            bidId,
+            "Current nextBidId:",
+            nextBidId.toString()
+          );
+
+          const stored = localStorage.getItem(
+            `userBids_${address.toLowerCase()}`
+          );
+          const existingBids = stored ? JSON.parse(stored) : [];
+
+          const newBid = {
+            bidId,
+            status: "active" as const,
+            lastValidated: Date.now(),
+          };
+
+          const exists = existingBids.some((b: any) => b.bidId === bidId);
+          if (!exists) {
+            const updatedBids = [...existingBids, newBid];
+            localStorage.setItem(
+              `userBids_${address.toLowerCase()}`,
+              JSON.stringify(updatedBids)
+            );
+            console.log("💾 Added bid to localStorage:", newBid);
+            console.log("💾 Updated bids array:", updatedBids);
+            console.log("💾 Storage key:", `userBids_${address.toLowerCase()}`);
+
+            // Verify it was saved
+            const verify = localStorage.getItem(
+              `userBids_${address.toLowerCase()}`
+            );
+            console.log("✅ Verification - localStorage now contains:", verify);
+            // Refresh to show the new bid
+            refetchBids();
+          } else {
+            console.log("⏭️ Bid already exists in storage");
+          }
+        } else {
+          console.log("⚠️ nextBidId not available yet, will retry...");
+          // Could add retry logic here if needed
+        }
+      }
+    };
+
+    addBidFromNextBidId();
+  }, [isSuccess, address, nextBidId]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -341,9 +534,34 @@ export function MyBid({ activeBids }: MyBidProps) {
             </div>
           )}
 
-          {isSuccess && (
+          {showSuccess && (
             <div className="p-3 bg-green-900/20 border border-green-700 rounded-lg text-sm text-green-200">
-              Bid submitted successfully! 🎉
+              <div className="flex items-center justify-between gap-2">
+                <span>Bid submitted successfully! 🎉</span>
+                {(txHash || hash) && (
+                  <a
+                    href={getEtherscanUrl(txHash)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 underline text-xs flex items-center gap-1"
+                  >
+                    View on Etherscan
+                    <svg
+                      className="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                      />
+                    </svg>
+                  </a>
+                )}
+              </div>
             </div>
           )}
 
@@ -353,6 +571,7 @@ export function MyBid({ activeBids }: MyBidProps) {
               !isConnected ||
               isPending ||
               isConfirming ||
+              showSuccess ||
               !budget ||
               !maxPrice ||
               isLoadingPriceParams ||
@@ -376,20 +595,21 @@ export function MyBid({ activeBids }: MyBidProps) {
               ? "Preparing transaction..."
               : isConfirming
               ? "Confirming..."
-              : isSuccess
+              : showSuccess
               ? "Bid Submitted!"
               : "Place Bid"}
           </button>
 
-          {error && (
-            <div className="text-xs text-red-400 mt-2">
-              Transaction error: {error.message}
+          {/* Handle wagmi error prop - only show if not already shown in submitError */}
+          {error && !submitError && (
+            <div className="p-3 bg-red-900/20 border border-red-700 rounded-lg text-sm text-red-200 mt-2">
+              {parseError(error)}
             </div>
           )}
         </div>
       </div>
 
-      <ActiveBids />
+      <ActiveBids bidIds={bidIds} />
     </div>
   );
 }

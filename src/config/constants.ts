@@ -2,13 +2,35 @@
  * Contract query configuration
  * Sepolia block time is ~12 seconds
  */
+// Frequently changing data (clearing price, currency raised, blocks)
 export const CONTRACT_QUERY_CONFIG = {
-  // Refetch interval: 12 seconds (1 block on Sepolia)
-  refetchInterval: 12000,
-  // Consider data fresh for 10 seconds
-  staleTime: 10000,
-  // Retry configuration
-  retry: 3,
+  refetchInterval: 60000, // 1 minute
+  staleTime: 50000, // 50 seconds
+  retry: 2,
+  retryDelay: 1000,
+} as const;
+
+// Rarely changing data (floor price, tick spacing, token addresses)
+export const STATIC_QUERY_CONFIG = {
+  refetchInterval: false, // Disable auto-refetch
+  staleTime: Infinity, // Never consider stale
+  retry: 1,
+  retryDelay: 1000,
+} as const;
+
+// Bid data - fetch once, manual refetch only
+export const BID_QUERY_CONFIG = {
+  refetchInterval: false, // Disable auto-refetch
+  staleTime: 300000, // 5 minutes
+  retry: 1,
+  retryDelay: 1000,
+} as const;
+
+// Block number - more frequent
+export const BLOCK_QUERY_CONFIG = {
+  refetchInterval: 30000, // 30 seconds
+  staleTime: 20000, // 20 seconds
+  retry: 2,
   retryDelay: 1000,
 } as const;
 

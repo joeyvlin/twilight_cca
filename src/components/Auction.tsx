@@ -173,8 +173,9 @@ export function Auction({
             <div
               className={`text-lg sm:text-xl md:text-2xl font-bold ${themeClasses.textAccent}`}
             >
-              {(allocatedTokens / 1000000).toFixed(1)}M /{" "}
-              {(totalTokens / 1000000).toFixed(1)}M ({allocatedPercentage}%)
+              {Math.ceil(allocatedTokens / 10 ** 18).toLocaleString()} /{" "}
+              {(totalTokens / 1000000 / 10 ** 18).toFixed(1)}M (
+              {allocatedPercentage.toFixed(6)}%)
             </div>
           </div>
         </div>
