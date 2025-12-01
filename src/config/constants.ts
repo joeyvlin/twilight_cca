@@ -60,14 +60,16 @@ export const AUCTION_CONFIG = {
 
   // Auction Duration
   duration: {
-    blocks: 3600, // Total auction length in blocks (300 + 3200 + 100)
-    epochs: 3, // Number of epochs
+    blocks: 105097, // Total auction length in blocks (300 + 3200 + 100)
+    epochs: 5, // Number of epochs
     blockTimeSeconds: 12, // Block time (Sepolia)
     // Epoch configuration: blocks per epoch
     epochsConfig: [
-      { epoch: 1, blocks: 300 }, // Epoch 1: 300 blocks
-      { epoch: 2, blocks: 3200 }, // Epoch 2: 3200 blocks
-      { epoch: 3, blocks: 100 }, // Epoch 3: 100 blocks
+      { epoch: 1, blocks: 7200 }, // Epoch 1: 1 day
+      { epoch: 2, blocks: 22620 }, // Epoch 2: 3 days
+      { epoch: 3, blocks: 22942 }, // Epoch 3: 3 days
+      { epoch: 4, blocks: 44889 }, // Epoch 4: 6 days
+      { epoch: 5, blocks: 7446 }, // Epoch 5: 1 day
     ],
   },
 
