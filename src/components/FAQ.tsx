@@ -143,6 +143,133 @@ export function FAQ() {
     setExpandedItems(newExpanded);
   };
 
+  const renderAnswer = (answer: string) => {
+    // Pattern to match ordered list items: (1), (2), etc. or 1., 2., etc.
+    // Find all positions where list items start
+    const parenPattern = /\((\d+)\)/g;
+    const numberedPattern = /\b(\d+)\.\s/g;
+    
+    // Try parentheses format first: (1), (2), etc.
+    const parenMatches = Array.from(answer.matchAll(parenPattern));
+    
+    if (parenMatches.length >= 2) {
+      // We have a list - split the answer into parts
+      const parts: (string | { type: 'list'; items: string[] })[] = [];
+      const listItems: string[] = [];
+      
+      // Get text before the first list item
+      const firstIndex = parenMatches[0].index || 0;
+      const textBefore = answer.substring(0, firstIndex).trim();
+      
+      // Extract text between each list item marker
+      for (let i = 0; i < parenMatches.length; i++) {
+        const match = parenMatches[i];
+        const startIndex = (match.index || 0) + match[0].length;
+        const endIndex = i < parenMatches.length - 1 
+          ? (parenMatches[i + 1].index || answer.length)
+          : answer.length;
+        
+        const itemText = answer.substring(startIndex, endIndex).trim();
+        if (itemText) {
+          listItems.push(itemText);
+        }
+      }
+      
+      // Get text after the last list item
+      const lastMatch = parenMatches[parenMatches.length - 1];
+      const lastIndex = (lastMatch.index || 0) + lastMatch[0].length;
+      const textAfter = answer.substring(lastIndex).trim();
+      
+      // Build parts array
+      if (textBefore) {
+        parts.push(textBefore);
+      }
+      if (listItems.length > 0) {
+        parts.push({ type: 'list', items: listItems });
+      }
+      if (textAfter) {
+        parts.push(textAfter);
+      }
+      
+      // Render
+      return (
+        <div>
+          {parts.map((part, index) => {
+            if (typeof part === 'string') {
+              return <p key={index} className={index > 0 ? 'mt-4' : ''}>{part}</p>;
+            } else {
+              return (
+                <ol key={index} className="list-decimal list-inside mt-4 space-y-2 ml-4">
+                  {part.items.map((item, itemIndex) => (
+                    <li key={itemIndex} className="ml-2">{item}</li>
+                  ))}
+                </ol>
+              );
+            }
+          })}
+        </div>
+      );
+    }
+    
+    // Try numbered format: 1., 2., etc.
+    const numberedMatches = Array.from(answer.matchAll(numberedPattern));
+    if (numberedMatches.length >= 2) {
+      const parts: (string | { type: 'list'; items: string[] })[] = [];
+      const listItems: string[] = [];
+      
+      const firstIndex = numberedMatches[0].index || 0;
+      const textBefore = answer.substring(0, firstIndex).trim();
+      
+      for (let i = 0; i < numberedMatches.length; i++) {
+        const match = numberedMatches[i];
+        const startIndex = (match.index || 0) + match[0].length;
+        const endIndex = i < numberedMatches.length - 1 
+          ? (numberedMatches[i + 1].index || answer.length)
+          : answer.length;
+        
+        const itemText = answer.substring(startIndex, endIndex).trim();
+        if (itemText) {
+          listItems.push(itemText);
+        }
+      }
+      
+      const lastMatch = numberedMatches[numberedMatches.length - 1];
+      const lastIndex = (lastMatch.index || 0) + lastMatch[0].length;
+      const textAfter = answer.substring(lastIndex).trim();
+      
+      if (textBefore) {
+        parts.push(textBefore);
+      }
+      if (listItems.length > 0) {
+        parts.push({ type: 'list', items: listItems });
+      }
+      if (textAfter) {
+        parts.push(textAfter);
+      }
+      
+      return (
+        <div>
+          {parts.map((part, index) => {
+            if (typeof part === 'string') {
+              return <p key={index} className={index > 0 ? 'mt-4' : ''}>{part}</p>;
+            } else {
+              return (
+                <ol key={index} className="list-decimal list-inside mt-4 space-y-2 ml-4">
+                  {part.items.map((item, itemIndex) => (
+                    <li key={itemIndex} className="ml-2">{item}</li>
+                  ))}
+                </ol>
+              );
+            }
+          })}
+        </div>
+      );
+    }
+    
+    // No list detected, render as plain text
+    return <p>{answer}</p>;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -191,7 +318,7 @@ export function FAQ() {
                     {isExpanded && (
                       <div className="px-4 sm:px-6 pb-4 sm:pb-5 pt-0">
                         <div className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                          {item.answer}
+                          {renderAnswer(item.answer)}
                         </div>
                       </div>
                     )}

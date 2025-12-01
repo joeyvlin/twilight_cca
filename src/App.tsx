@@ -294,14 +294,14 @@ function App() {
   return (
     <div className={`min-h-screen ${themeClasses.mainBackground} text-white`}>
       {/* Lightning Background - with transparency */}
-      {/*currentPage === 'home' && auctionState !== 'post-auction' && (
+      {currentPage === 'home' && (
         <div className="absolute top-0 left-0 right-0 z-0 pointer-events-none" style={{ height: '200vh' }}>
           <Lightning 
             hue={186}
             xOffset={0}
-            speed={0.4}
-            intensity={0.5}
-            size={0.75}
+            speed={auctionState === 'post-auction' ? 0.2 : 0.4}
+            intensity={auctionState === 'post-auction' ? 0.25 : 0.5}
+            size={auctionState === 'post-auction' ? 0.375 : 0.75}
           />
         </div>
       )*/}
