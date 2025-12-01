@@ -23,7 +23,9 @@ import { sepolia } from 'wagmi/chains';
 import { useAuctionCountdown } from "./hooks/useAuctionCountdown";
 import { useContract } from "./contexts/ContractContext";
 import { BLOCK_TIME_MS, AUCTION_CONFIG } from "./config/constants";
-import { blocksToTime } from "./utils/formatting";
+import { blocksToTime, formatPrice, formatClearingPrice } from "./utils/formatting";
+import { useAuctionEndCountdown } from "./hooks/useAuctionEndCountdown";
+import { useBlockEndCountdown } from "./hooks/useBlockEndCountDown";
 
 const SEPOLIA_RPC_URL =
   import.meta.env.VITE_SEPOLIA_RPC_URL ||
@@ -210,6 +212,10 @@ function App() {
   // Countdown to auction start date based on the Auction Contract Start Block
   const contract = useContract();
   const { countdown: timeUntilAuction, isBeforeStart } = useAuctionCountdown();
+  const { countdown: timeUntilAuctionEnd } = useAuctionEndCountdown();
+
+  const { countdown: timeUntilBlockEnd } = useBlockEndCountdown();
+
 
   // Determine auction state from contract
   useEffect(() => {
@@ -217,11 +223,16 @@ function App() {
       return; // Still loading
     }
 
+    // Buffer: Keep auction-live for 100 blocks (~20 minutes) after endBlock
+    // Adjust BUFFER_BLOCKS as needed
+    const BUFFER_BLOCKS = 360;
+    const effectiveEndBlock = contract.endBlock + BigInt(BUFFER_BLOCKS);
+
     if (contract.currentBlock < contract.startBlock) {
       setAuctionState("pre-auction");
     } else if (
       contract.currentBlock >= contract.startBlock &&
-      contract.currentBlock <= contract.endBlock
+      contract.currentBlock <= effectiveEndBlock
     ) {
       setAuctionState("auction-live");
     } else {
@@ -254,7 +265,19 @@ function App() {
     },
     []
   );
+  // Calculate auction block data from contract
+  const currentBlockInAuction =
+    contract.currentBlock &&
+    contract.startBlock &&
+    contract.currentBlock >= contract.startBlock
+      ? Number(contract.currentBlock - contract.startBlock)
+      : 0;
 
+  // Calculate allocated tokens percentage
+  const allocatedPercentage =
+    contract.totalSupply && contract.totalCleared
+      ? (Number(contract.totalCleared) / Number(contract.totalSupply)) * 100
+      : 0;
   // Calculate estimated start date from contract
   const estimatedStartDate =
     contract.startBlock && contract.currentBlock
@@ -700,18 +723,29 @@ function App() {
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
                           />
                           <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">
-                            Total Value Locked
+                            Currency Raised
                           </div>
                         </div>
                         <div
                           className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
                         >
-                          <AnimatedNumber
-                            value={summaryData.totalValueLocked}
-                            duration={1500}
-                            enabled={true}
-                            formatter={(v) => `$${v.toLocaleString()}`}
-                          />
+                          {contract.currencyRaised !== undefined ? (
+                            <AnimatedNumber
+                              value={Number(contract.currencyRaised) / 1e18}
+                              duration={1500}
+                              enabled={true}
+                              formatter={(v) => {
+                                if (v >= 1000) {
+                                  return `${(v / 1000).toFixed(2)}K ETH`;
+                                }
+                                return `${v.toFixed(4)} ETH`;
+                              }}
+                            />
+                          ) : contract.isLoading ? (
+                            <span className="text-gray-500">Loading...</span>
+                          ) : (
+                            <span className="text-gray-500">0 ETH</span>
+                          )}
                         </div>
                       </div>
                     </TiltCard>
@@ -742,7 +776,6 @@ function App() {
                   />
                 </div>
               </AnimatedSection>
-
               <AnimatedSection delay={300} animation="fade-in-up">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 items-stretch">
                   <AnimatedSection delay={0} animation="fade-in">
@@ -757,15 +790,30 @@ function App() {
                         />
                       ) : auctionState === "auction-live" ? (
                         <Auction
-                          countdown1={countdown1}
-                          countdown2={countdown2}
+                          countdown1={timeUntilBlockEnd}
+                          countdown2={timeUntilAuctionEnd}
                           formatTime={formatTime}
-                          currentBlock={auctionData.currentBlock}
-                          totalBlocks={auctionData.totalBlocks}
-                          lastClearingPrice={auctionData.lastClearingPrice}
-                          allocatedTokens={auctionData.allocatedTokens}
-                          totalTokens={auctionData.totalTokens}
-                          allocatedPercentage={auctionData.allocatedPercentage}
+                          currentBlock={currentBlockInAuction}
+                          totalBlocks={AUCTION_CONFIG.duration.blocks}
+                          lastClearingPrice={
+                            contract.clearingPrice &&
+                            contract.clearingPrice > 0n
+                              ? parseFloat(
+                                  formatClearingPrice(contract.clearingPrice)
+                                )
+                              : 0
+                          }
+                          allocatedTokens={
+                            contract.totalCleared
+                              ? Number(contract.totalCleared)
+                              : 0
+                          }
+                          totalTokens={
+                            contract.totalSupply
+                              ? Number(contract.totalSupply)
+                              : 0
+                          }
+                          allocatedPercentage={allocatedPercentage}
                         />
                       ) : (
                         <ElectricBorder

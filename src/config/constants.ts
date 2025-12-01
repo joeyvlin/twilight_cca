@@ -30,17 +30,23 @@ export const STALE_BLOCK_COUNT = 1;
 export const AUCTION_CONFIG = {
   // Token Information
   tokens: {
-    total: 10000000, // Total tokens in auction
-    available: 10000000, // Tokens available (might be less than total if some are reserved)
-    percentage: 10, // Percentage of total supply
+    total: 5000000, // Total tokens in auction
+    available: 5000000, // Tokens available (might be less than total if some are reserved)
+    percentage: 5, // Percentage of total supply
     decimals: 18, // Token decimals
   },
 
   // Auction Duration
   duration: {
-    blocks: 3600, // Total auction length in blocks
+    blocks: 3600, // Total auction length in blocks (300 + 3200 + 100)
     epochs: 3, // Number of epochs
     blockTimeSeconds: 12, // Block time (Sepolia)
+    // Epoch configuration: blocks per epoch
+    epochsConfig: [
+      { epoch: 1, blocks: 300 }, // Epoch 1: 300 blocks
+      { epoch: 2, blocks: 3200 }, // Epoch 2: 3200 blocks
+      { epoch: 3, blocks: 100 }, // Epoch 3: 100 blocks
+    ],
   },
 
   // Formatting helpers
@@ -57,3 +63,4 @@ export const AUCTION_CONFIG = {
     return `${epochs} ${epochs === 1 ? "epoch" : "epochs"}`;
   },
 } as const;
+
