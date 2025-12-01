@@ -29,7 +29,7 @@ import { useBlockEndCountdown } from "./hooks/useBlockEndCountDown";
 
 const SEPOLIA_RPC_URL =
   import.meta.env.VITE_SEPOLIA_RPC_URL ||
-  "https://ethereum-sepolia-rpc.publicnode.com";
+  "https://sepolia.gateway.tenderly.co";
 
 // Type helper for window.ethereum
 type EthereumProvider = {
