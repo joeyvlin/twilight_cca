@@ -430,7 +430,9 @@ export function MyBid({ activeBids }: MyBidProps) {
   }, [isSuccess, address, nextBidId]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+    // UI Improvement: Changed lg:grid-cols-2 to xl:grid-cols-1 (stacking) 
+    // and 2xl:grid-cols-2 to prevent cramping on standard laptops.
+    <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4 sm:gap-6">
       <div
         ref={tiltRef}
         className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6"
@@ -477,7 +479,8 @@ export function MyBid({ activeBids }: MyBidProps) {
                   isConfirming ||
                   isLoadingPriceParams
                 }
-                className={`w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 pl-7 sm:pl-8 text-sm sm:text-base focus:outline-none ${
+                // UI Improvement: text-base on mobile (prevent iOS zoom), text-sm on sm+
+                className={`w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 pl-7 sm:pl-8 text-base sm:text-sm focus:outline-none ${
                   !isConnected ||
                   isPending ||
                   isConfirming ||
