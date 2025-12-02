@@ -18,6 +18,8 @@ interface AuctionProps {
   allocatedPercentage?: number;
   // Add floorPrice prop
   floorPrice?: number;
+  // Add ethUsdPrice prop
+  ethUsdPrice?: number | null;
 }
 
 export function Auction({ 
@@ -31,7 +33,8 @@ export function Auction({
   totalTokens = 5000000,
   allocatedPercentage = 50,
   // Default floor price if not provided
-  floorPrice = 0.00001, 
+  floorPrice = 0.00001,
+  ethUsdPrice = null,
 }: AuctionProps) {
   const themeClasses = useThemeClasses();
   
@@ -80,7 +83,7 @@ export function Auction({
               totalBlocks !== undefined &&
               totalBlocks > 0 ? (
                 <>
-                  #{currentBlock.toLocaleString()} /{" "}
+                  {currentBlock.toLocaleString()} /{" "}
                   {totalBlocks.toLocaleString()}
                 </>
               ) : (
@@ -101,7 +104,16 @@ export function Auction({
               className={`text-lg sm:text-xl md:text-2xl font-bold ${themeClasses.textAccent}`}
             >
               {displayPrice > 0 ? (
-                `${displayPrice.toFixed(6)} ETH`
+                <div className="flex flex-col">
+                  <span>{displayPrice.toFixed(6)} ETH</span>
+                  {ethUsdPrice !== null && ethUsdPrice !== undefined && (
+                    <span className="font-body text-xs sm:text-sm text-gray-400 mt-1">
+                      ${(displayPrice * ethUsdPrice >= 1000
+                        ? `${((displayPrice * ethUsdPrice) / 1000).toFixed(2)}K`
+                        : (displayPrice * ethUsdPrice).toFixed(2))}
+                    </span>
+                  )}
+                </div>
               ) : (
                 <span className="text-gray-500">Loading...</span>
               )}

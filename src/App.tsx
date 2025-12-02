@@ -780,10 +780,23 @@ function App() {
                           {contract.currencyRaised !== undefined ? (
                             (() => {
                               const value = Number(contract.currencyRaised) / 1e18;
-                              if (value >= 1000) {
-                                return `${(value / 1000).toFixed(2)}K ETH`;
-                              }
-                              return `${value.toFixed(4)} ETH`;
+                              const usdValue = ethUsdPrice ? value * ethUsdPrice : null;
+                              return (
+                                <div className="flex flex-col">
+                                  <span className="font-headline">
+                                    {value >= 1000
+                                      ? `${(value / 1000).toFixed(2)}K ETH`
+                                      : `${value.toFixed(4)} ETH`}
+                                  </span>
+                                  {usdValue !== null && (
+                                    <span className="font-body text-sm sm:text-base text-gray-400 mt-1">
+                                      ${usdValue >= 1000
+                                        ? `${(usdValue / 1000).toFixed(2)}K`
+                                        : usdValue.toFixed(2)}
+                                    </span>
+                                  )}
+                                </div>
+                              );
                             })()
                           ) : contract.isLoading ? (
                             <span className="text-gray-500">Loading...</span>
@@ -862,6 +875,7 @@ function App() {
                               ? Number(contract.floorPrice) / Number(2n ** 96n)
                               : undefined
                           }
+                          ethUsdPrice={ethUsdPrice}
                           allocatedTokens={
                             contract.totalCleared
                               ? Number(contract.totalCleared)

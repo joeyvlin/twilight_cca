@@ -8,6 +8,7 @@ import { useContract } from "../contexts/ContractContext";
 import { useUserBids, useBidData } from "../hooks/useUserBids";
 import { parseEther } from "viem";
 import { toast } from "sonner";
+import { useEthUsdPrice } from "../hooks/useEthUsdPrice";
 
 
 interface MyBidProps {
@@ -87,8 +88,7 @@ function getEtherscanUrl(txHash: string): string {
 }
 
 // Component to fetch and display a single bid
-// Component to fetch and display a single bid
-function BidItem({ bidId }: { bidId: bigint }) {
+function BidItem({ bidId, ethUsdPrice }: { bidId: bigint; ethUsdPrice?: number | null }) {
   const themeClasses = useThemeClasses();
   const { bidData, isLoading, error } = useBidData(bidId);
 
@@ -141,6 +141,14 @@ function BidItem({ bidId }: { bidId: bigint }) {
         <div className="text-sm sm:text-base font-semibold">
           {bidData.budget.toFixed(4)} 
         </div>
+        {ethUsdPrice !== null && ethUsdPrice !== undefined && (
+          <div className="text-xs text-gray-400 mt-0.5">
+            ≈ ${(bidData.budget * ethUsdPrice).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            })}
+          </div>
+        )}
       </div>
       <div>
         <label className="text-xs sm:text-sm text-gray-400 mb-1 block">
@@ -149,6 +157,14 @@ function BidItem({ bidId }: { bidId: bigint }) {
         <div className="text-sm sm:text-base font-semibold">
           {bidData.maxPrice.toFixed(6)} 
         </div>
+        {ethUsdPrice !== null && ethUsdPrice !== undefined && (
+          <div className="text-xs text-gray-400 mt-0.5">
+            ≈ ${(bidData.maxPrice * ethUsdPrice).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -158,6 +174,7 @@ function ActiveBids({ bidIds }: { bidIds: bigint[] }) {
   const themeClasses = useThemeClasses();
   // const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
   const { address, isConnected } = useWeb3();
+  const ethUsdPrice = useEthUsdPrice();
   // const { bidIds } = useUserBids();
 
   return (
@@ -189,7 +206,7 @@ function ActiveBids({ bidIds }: { bidIds: bigint[] }) {
       ) : (
         <div className="space-y-3 sm:space-y-4">
           {bidIds.map((bidId) => (
-            <BidItem key={bidId.toString()} bidId={bidId} />
+            <BidItem key={bidId.toString()} bidId={bidId} ethUsdPrice={ethUsdPrice} />
           ))}
         </div>
       )}
@@ -206,6 +223,7 @@ export function MyBid({ activeBids }: MyBidProps) {
   const { submitBid, isPending, isConfirming, isSuccess, error, hash } =
     useSubmitBid();
   const { bidIds, refetch: refetchBids } = useUserBids();
+  const ethUsdPrice = useEthUsdPrice();
 
   const [budget, setBudget] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -500,6 +518,14 @@ export function MyBid({ activeBids }: MyBidProps) {
                 } transition-colors`}
               />
             </div>
+            {budget && !isNaN(parseFloat(budget)) && parseFloat(budget) > 0 && ethUsdPrice !== null && (
+              <div className="text-xs sm:text-sm text-gray-400 mt-1">
+                ≈ ${(parseFloat(budget) * ethUsdPrice).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
+              </div>
+            )}
           </div>
 
           <div>
@@ -539,6 +565,14 @@ export function MyBid({ activeBids }: MyBidProps) {
                 } transition-colors`}
               />
             </div>
+            {maxPrice && !isNaN(parseFloat(maxPrice)) && parseFloat(maxPrice) > 0 && ethUsdPrice !== null && (
+              <div className="text-xs sm:text-sm text-gray-400 mt-1">
+                ≈ ${(parseFloat(maxPrice) * ethUsdPrice).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
+              </div>
+            )}
           </div>
 
           <button
