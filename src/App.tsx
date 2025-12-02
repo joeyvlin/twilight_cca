@@ -737,7 +737,7 @@ function App() {
                     <div>
                       <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
                         <div className="flex items-center gap-2 mb-2">
-                          <UserCheck
+                          <Coins
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
                           />
                           <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
