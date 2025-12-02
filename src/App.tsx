@@ -505,8 +505,8 @@ function App() {
               </button>
             </div>
             
-            {/* Menu items centered */}
-            <div className="flex flex-col items-center justify-center h-full -mt-16 gap-6">
+            {/* Menu items positioned top-left */}
+            <div className="flex flex-col items-start px-6 pt-8 gap-4">
               <a
                 href="/faq"
                 onClick={(e) => {
