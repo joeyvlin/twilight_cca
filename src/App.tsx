@@ -7,14 +7,15 @@ import { Auction } from './components/Auction';
 import { MyBid } from './components/MyBid';
 import { FAQ } from './components/FAQ';
 import { BitcoinShield } from './components/BitcoinShield';
-import { AnimatedSection } from './components/AnimatedSection';
+// import { AnimatedSection } from './components/AnimatedSection';
 import { TiltCard } from './components/TiltCard';
 import { StateSlider } from './components/StateSlider';
 import { ThemeToggle } from './components/ThemeToggle';
-import Lightning from './components/Lightning';
+// import Lightning from './components/Lightning';
 import { useThemeClasses } from './hooks/useThemeClasses';
-import { useTilt } from './hooks/useTilt';
+// import { useTilt } from './hooks/useTilt';
 import { useWeb3 } from './contexts/Web3Context';
+import { Toaster } from 'sonner';
 import { sepolia } from 'wagmi/chains'; 
 //import { ContractTest } from "./components/ContractTest";
 import { useAuctionCountdown } from "./hooks/useAuctionCountdown";
@@ -51,6 +52,7 @@ function App() {
     isCorrectNetwork,
     switchNetwork,
   } = useWeb3();
+  /*
   const navThemeToggleTilt = useTilt<HTMLDivElement>({
     maxTilt: 3,
     scale: 1.02,
@@ -58,6 +60,7 @@ function App() {
   const navLink1Tilt = useTilt<HTMLAnchorElement>({ maxTilt: 3, scale: 1.02 });
   const navLink2Tilt = useTilt<HTMLAnchorElement>({ maxTilt: 3, scale: 1.02 });
   const navButtonTilt = useTilt<HTMLButtonElement>({ maxTilt: 3, scale: 1.02 });
+  */
   const [countdown1, setCountdown1] = useState({
     hours: 2,
     minutes: 15,
@@ -294,6 +297,9 @@ function App() {
   return (
     // UI Fix: Added flex and flex-col to the wrapper
     <div className={`min-h-screen flex flex-col ${themeClasses.mainBackground} text-white`}>
+      {/* Add Toaster component here, customized for dark theme */}
+      <Toaster position="top-right" theme="dark" richColors closeButton />
+
       {/* Lightning Background REMOVED */}
       
       <header
@@ -331,8 +337,8 @@ function App() {
                 {/* "Token Lightning Sale" text REMOVED */}
               </a>
               <div
-                ref={navThemeToggleTilt}
-                style={{ transformStyle: "preserve-3d" }}
+                // ref={navThemeToggleTilt}
+                // style={{ transformStyle: "preserve-3d" }}
               >
                 <ThemeToggle />
               </div>
@@ -342,7 +348,7 @@ function App() {
             {/* Desktop menu items */}
             <a
               href="/faq"
-              ref={navLink1Tilt}
+              // ref={navLink1Tilt}
               onClick={(e) => {
                 e.preventDefault();
                 setCurrentPage(currentPage === "faq" ? "home" : "faq");
@@ -352,7 +358,7 @@ function App() {
                   ? themeClasses.textAccent
                   : "text-gray-300 hover:text-white"
               }`}
-              style={{ transformStyle: "preserve-3d" }}
+              // style={{ transformStyle: "preserve-3d" }}
             >
               Auction Details
             </a>
@@ -360,15 +366,15 @@ function App() {
               href="https://quasar-8.gitbook.io/twilight-docs"
               target="_blank"
               rel="noopener noreferrer"
-              ref={navLink2Tilt}
+              // ref={navLink2Tilt}
               className="hidden md:block text-gray-300 hover:text-white transition-colors text-sm sm:text-base"
-              style={{ transformStyle: "preserve-3d" }}
+              // style={{ transformStyle: "preserve-3d" }}
             >
               Twilight Docs
             </a>
 
             <button
-              ref={navButtonTilt}
+              // ref={navButtonTilt}
               onClick={async () => {
                 if (isConnected) {
                   disconnect();
@@ -446,7 +452,7 @@ function App() {
                   ? "border-yellow-500 text-yellow-500"
                   : ""
               }`}
-              style={{ transformStyle: "preserve-3d" }}
+              // style={{ transformStyle: "preserve-3d" }}
               title={
                 address && !isCorrectNetwork
                   ? "Please switch to Sepolia network"
@@ -567,81 +573,95 @@ function App() {
           </div>
 
           <div
-            className={`transition-opacity duration-1000 ease-out ${
-              showContent ? "opacity-100" : "opacity-0"
-            }`}
+            // className={`transition-opacity duration-1000 ease-out ${
+            //   showContent ? "opacity-100" : "opacity-0"
+            // }`}
+            className="opacity-100"
           >
-            <AnimatedSection delay={100} animation="fade-in-up">
+            {/* <AnimatedSection delay={100} animation="fade-in-up"> */}
+            <div>
               {auctionState === "pre-auction" ? (
-                <div className="flex justify-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-                  <div className="w-1/3">
-                    <AnimatedSection delay={0}>
-                      <TiltCard maxTilt={5} scale={1.02}>
-                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                          <div className="flex items-center gap-2 mb-2">
+                // Changed from flex row with w-1/3 to grid with wider columns
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto mb-6 sm:mb-8">
+                  <div className="w-full">
+                    {/* <AnimatedSection delay={0}> */}
+                    <div>
+                      {/* <TiltCard maxTilt={5} scale={1.02}> */}
+                      <div className="h-full">
+                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 sm:p-8 h-full cursor-pointer hover:border-blue-500/50 transition-colors">
+                          <div className="flex items-center gap-3 mb-3">
                             <Coins
-                              className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
+                              className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
                             />
-                            <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">
+                            <div className="text-sm sm:text-base text-gray-400 uppercase tracking-wide font-medium">
                               Tokens Available
                             </div>
                           </div>
-                          <div className="flex items-baseline gap-2">
+                          <div className="flex flex-col gap-1">
                             <div
-                              className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
+                              className={`text-3xl sm:text-4xl md:text-5xl font-bold ${themeClasses.textAccent}`}
                             >
                               {AUCTION_CONFIG.formatTokens(
                                 AUCTION_CONFIG.tokens.available
                               )}
                             </div>
-                            <div className="text-xs sm:text-sm text-gray-500">
+                            <div className="text-sm sm:text-base text-gray-500">
                               {AUCTION_CONFIG.tokens.percentage}% of total
                               supply
                             </div>
                           </div>
                         </div>
-                      </TiltCard>
-                    </AnimatedSection>
+                      {/* </TiltCard> */}
+                      </div>
+                    {/* </AnimatedSection> */}
+                    </div>
                   </div>
-                  <div className="w-1/3">
-                    <AnimatedSection delay={100}>
-                      <TiltCard maxTilt={5} scale={1.02}>
-                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                          <div className="flex items-center gap-2 mb-2">
+                  <div className="w-full">
+                    {/* <AnimatedSection delay={100}> */}
+                    <div>
+                      {/* <TiltCard maxTilt={5} scale={1.02}> */}
+                      <div className="h-full">
+                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 sm:p-8 h-full cursor-pointer hover:border-blue-500/50 transition-colors">
+                          <div className="flex items-center gap-3 mb-3">
                             <Clock
-                              className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
+                              className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
                             />
-                            <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">
+                            <div className="text-sm sm:text-base text-gray-400 uppercase tracking-wide font-medium">
                               Auction Length
                             </div>
                           </div>
-                          <div
-                            className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
-                          >
-                            {AUCTION_CONFIG.duration.blocks.toLocaleString()}{" "}
-                            blocks{" "}
-                            <span className="text-xs sm:text-sm text-gray-500">
-                              (
+                          <div className="flex flex-col gap-1">
+                            <div
+                              className={`text-3xl sm:text-4xl md:text-5xl font-bold ${themeClasses.textAccent}`}
+                            >
+                              {AUCTION_CONFIG.duration.blocks.toLocaleString()}
+                            </div>
+                            <div className="text-sm sm:text-base text-gray-500">
+                              blocks (
                               {blocksToTime(
                                 BigInt(AUCTION_CONFIG.duration.blocks)
                               )}
                               )
-                            </span>
+                            </div>
                           </div>
-                          <div className="text-xs sm:text-sm text-gray-500 mt-1">
+                          <div className="text-sm sm:text-base text-gray-500 mt-2 pt-2 border-t border-gray-700/50">
                             {AUCTION_CONFIG.formatEpochs(
                               AUCTION_CONFIG.duration.epochs
                             )}
                           </div>
                         </div>
-                      </TiltCard>
-                    </AnimatedSection>
+                      {/* </TiltCard> */}
+                      </div>
+                    {/* </AnimatedSection> */}
+                    </div>
                   </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                  <AnimatedSection delay={0}>
-                    <TiltCard maxTilt={3} scale={1.01}>
+                  {/* <AnimatedSection delay={0}> */}
+                  <div>
+                    {/* <TiltCard maxTilt={3} scale={1.01}> */}
+                    <div>
                       <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
                         <div className="flex items-center gap-2 mb-2">
                           <HandCoins
@@ -671,10 +691,14 @@ function App() {
                           )}
                         </div>
                       </div>
-                    </TiltCard>
-                  </AnimatedSection>
-                  <AnimatedSection delay={100}>
-                    <TiltCard maxTilt={3} scale={1.01}>
+                    {/* </TiltCard> */}
+                    </div>
+                  {/* </AnimatedSection> */}
+                  </div>
+                  {/* <AnimatedSection delay={100}> */}
+                  <div>
+                    {/* <TiltCard maxTilt={3} scale={1.01}> */}
+                    <div>
                       <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
                         <div className="flex items-center gap-2 mb-2">
                           <UserCheck
@@ -695,10 +719,14 @@ function App() {
                           Requires indexer
                         </div>
                       </div>
-                    </TiltCard>
-                  </AnimatedSection>
-                  <AnimatedSection delay={200}>
-                    <TiltCard maxTilt={3} scale={1.01}>
+                    {/* </TiltCard> */}
+                    </div>
+                  {/* </AnimatedSection> */}
+                  </div>
+                  {/* <AnimatedSection delay={200}> */}
+                  <div>
+                    {/* <TiltCard maxTilt={3} scale={1.01}> */}
+                    <div>
                       <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
                         <div className="flex items-center gap-2 mb-2">
                           <Lock
@@ -730,11 +758,14 @@ function App() {
                           )}
                         </div>
                       </div>
-                    </TiltCard>
-                  </AnimatedSection>
+                    {/* </TiltCard> */}
+                    </div>
+                  {/* </AnimatedSection> */}
+                  </div>
                 </div>
               )}
-            </AnimatedSection>
+            {/* </AnimatedSection> */}
+            </div>
           </div>
         </div>
       )}
@@ -747,21 +778,26 @@ function App() {
         ) : (
           <>
             <div
-              className={`transition-opacity duration-1000 ease-out ${
-                showContent ? "opacity-100" : "opacity-0"
-              }`}
+              // className={`transition-opacity duration-1000 ease-out ${
+              //   showContent ? "opacity-100" : "opacity-0"
+              // }`}
+              className="opacity-100"
             >
-              <AnimatedSection delay={200} animation="fade-in-up">
+              {/* <AnimatedSection delay={200} animation="fade-in-up"> */}
+              <div>
                 <div className="flex items-center justify-center sm:justify-start mb-3 sm:mb-4">
                   <StateSlider
                     value={auctionState}
                     onChange={setAuctionState}
                   />
                 </div>
-              </AnimatedSection>
-              <AnimatedSection delay={300} animation="fade-in-up">
+              {/* </AnimatedSection> */}
+              </div>
+              {/* <AnimatedSection delay={300} animation="fade-in-up"> */}
+              <div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 items-stretch">
-                  <AnimatedSection delay={0} animation="fade-in">
+                  {/* <AnimatedSection delay={0} animation="fade-in"> */}
+                  <div>
                     <div className="flex flex-col h-full">
                       {auctionState === "post-auction" ? (
                         <Swap
@@ -895,8 +931,10 @@ function App() {
                         </div>
                       )}
                     </div>
-                  </AnimatedSection>
-                  <AnimatedSection delay={150} animation="fade-in">
+                  {/* </AnimatedSection> */}
+                  </div>
+                  {/* <AnimatedSection delay={150} animation="fade-in"> */}
+                  <div>
                     <div className="flex flex-col gap-3 sm:gap-4 h-full">
                       {auctionState === "auction-live" && (
                         <MyBid activeBids={myBidData} />
@@ -908,9 +946,11 @@ function App() {
                         estimatedValue={myPositionData.estimatedValue}
                       />
                     </div>
-                  </AnimatedSection>
+                  {/* </AnimatedSection> */}
+                  </div>
                 </div>
-              </AnimatedSection>
+              {/* </AnimatedSection> */}
+              </div>
             </div>
           </>
         )}

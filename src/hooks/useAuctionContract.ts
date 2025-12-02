@@ -284,7 +284,8 @@ export function useAuctionState() {
 // ============================================
 
 export function useSubmitBid() {
-  const { writeContract, data: hash, isPending, error } = useWriteContract();
+  // FIX: Destructure writeContractAsync instead of writeContract
+  const { writeContractAsync, data: hash, isPending, error } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash,
   });
@@ -297,7 +298,8 @@ export function useSubmitBid() {
     value?: bigint // ETH value if currency is ETH
   ) => {
     try {
-      await writeContract({
+      // FIX: Use writeContractAsync and await it
+      await writeContractAsync({
         ...auctionContractConfig,
         functionName: "submitBid",
         args: [maxPrice, amount, owner, hookData],
@@ -305,7 +307,7 @@ export function useSubmitBid() {
       });
     } catch (err) {
       console.error("Error submitting bid:", err);
-      throw err;
+      throw err; // Now this will actually throw to the component
     }
   };
 
