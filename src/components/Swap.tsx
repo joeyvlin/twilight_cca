@@ -40,7 +40,7 @@ export function Swap({
           }`}
         />
         <h2
-          className={`text-lg sm:text-xl font-semibold ${
+          className={`text-lg sm:text-xl font-semibold font-body ${
             disabled ? "text-gray-500" : ""
           }`}
         >

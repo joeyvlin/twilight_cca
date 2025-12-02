@@ -31,7 +31,7 @@ export function MyPosition({
         <Briefcase
           className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
         />
-        <h2 className="text-lg sm:text-xl font-semibold">My Position</h2>
+        <h2 className="text-lg sm:text-xl font-semibold font-body text-gray-300">My Position</h2>
       </div>
 
       <div className="space-y-4 sm:space-y-6">

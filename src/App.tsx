@@ -576,7 +576,7 @@ function App() {
 
                 <p
                   id="subtitle"
-                  className="font-body text-lg sm:text-xl md:text-2xl font-light text-center mt-2 mb-6 sm:mb-8 text-cyan-400"
+                  className={`font-body text-lg sm:text-xl md:text-2xl font-light text-center mt-2 mb-6 sm:mb-8 ${themeClasses.textAccent}`}
                 >
                   Untraceable Bitcoin on Privacy DEX
                 </p>
@@ -791,8 +791,7 @@ function App() {
                                   {usdValue !== null && (
                                     <span className="font-body text-sm sm:text-base text-gray-400 mt-1">
                                       ${usdValue >= 1000
-                                        ? `${(usdValue / 1000).toFixed(2)}K`
-                                        : usdValue.toFixed(2)}
+                                        ? `${(usdValue / 1000).toFixed(2)}K`                                        : usdValue.toFixed(2)}
                                     </span>
                                   )}
                                 </div>
@@ -893,7 +892,7 @@ function App() {
                         <div className="h-full rounded-2xl p-[2px] bg-gradient-to-br from-blue-500 to-purple-600">
                           <div className="bg-gray-900 rounded-2xl p-6 h-full flex items-center justify-center">
                             <div className="text-center">
-                              <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+                              <h2 className="text-xl sm:text-2xl font-semibold font-body text-gray-300 mb-4">
                                 Auction Starts In
                               </h2>
 
@@ -1066,3 +1065,4 @@ function App() {
 }
 
 export default App;
+

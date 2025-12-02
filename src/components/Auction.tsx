@@ -59,7 +59,7 @@ export function Auction({
             <Gavel
               className={`w-3 h-3 sm:w-4 sm:h-4 ${themeClasses.textAccent}`}
             />
-            <h2 className="text-lg sm:text-xl font-semibold">
+            <h2 className={`text-lg sm:text-xl font-semibold font-body text-gray-300`}>
               Twilight Real-Time Auction
             </h2>
           </div>
@@ -78,7 +78,7 @@ export function Auction({
             <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
               Current Block
             </div>
-            <div className="text-lg sm:text-xl md:text-2xl font-bold">
+            <div className={`text-lg sm:text-xl md:text-2xl font-bold ${themeClasses.textAccent}`}>
               {currentBlock !== undefined &&
               totalBlocks !== undefined &&
               totalBlocks > 0 ? (
