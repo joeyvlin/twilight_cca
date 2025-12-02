@@ -19,8 +19,14 @@ export function useTilt<T extends HTMLElement = HTMLDivElement>(options: UseTilt
   const rafIdRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // UI Improvement: Disable tilt on touch devices or small screens
+    const isTouchDevice = 
+      'ontouchstart' in window || 
+      navigator.maxTouchPoints > 0 || 
+      window.matchMedia('(pointer: coarse)').matches;
+
     const element = ref.current;
-    if (!element) return;
+    if (!element || isTouchDevice) return;
 
     let rect = element.getBoundingClientRect();
 

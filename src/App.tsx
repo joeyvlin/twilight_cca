@@ -9,7 +9,6 @@ import { FAQ } from './components/FAQ';
 import { BitcoinShield } from './components/BitcoinShield';
 import { AnimatedSection } from './components/AnimatedSection';
 import { TiltCard } from './components/TiltCard';
-import { AnnouncementBanner } from './components/AnnouncementBanner';
 import { StateSlider } from './components/StateSlider';
 import { TypewriterText } from './components/TypewriterText';
 import { ThemeToggle } from './components/ThemeToggle';
@@ -293,18 +292,8 @@ function App() {
       : null;
   return (
     <div className={`min-h-screen ${themeClasses.mainBackground} text-white`}>
-      {/* Lightning Background - with transparency */}
-      {currentPage === 'home' && (
-        <div className="absolute top-0 left-0 right-0 z-0 pointer-events-none" style={{ height: '100vh' }}>
-          <Lightning 
-            hue={186}
-            xOffset={0.75}
-            speed={auctionState === 'post-auction' ? 0.1 : 0.2}
-            intensity={0.15}
-            size={0.25}
-          />
-        </div>
-      )}
+      {/* Lightning Background REMOVED */}
+      
       <header
         className={`relative border-b border-gray-800 ${themeClasses.headerBackground} bg-opacity-80 backdrop-blur-sm z-10`}
       >
@@ -337,9 +326,7 @@ function App() {
                   alt="Twilight Logo"
                   style={{ minWidth: "108px", height: "auto" }}
                 />
-                <span className="text-xs sm:text-sm md:text-base lg:text-lg font-semibold whitespace-nowrap">
-                  Token Lightning Sale
-                </span>
+                {/* "Token Lightning Sale" text REMOVED */}
               </a>
               <div
                 ref={navThemeToggleTilt}
@@ -365,7 +352,7 @@ function App() {
               }`}
               style={{ transformStyle: "preserve-3d" }}
             >
-              FAQ
+              Auction Details
             </a>
             <a
               href="https://quasar-8.gitbook.io/twilight-docs"
@@ -483,10 +470,10 @@ function App() {
           </nav>
         </div>
 
-        {/* Mobile menu dropdown */}
+        {/* Mobile menu dropdown - UI Improvement: Absolute overlay instead of push */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-800 bg-gray-900">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-3">
+          <div className="absolute top-full left-0 w-full z-50 border-t border-gray-800 bg-gray-900/95 backdrop-blur-md shadow-xl">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-4">
               <a
                 href="/faq"
                 onClick={(e) => {
@@ -500,7 +487,7 @@ function App() {
                     : "text-gray-300 hover:text-white"
                 }`}
               >
-                FAQ
+                Auction Details
               </a>
               <a
                 href="https://quasar-8.gitbook.io/twilight-docs"
@@ -516,7 +503,7 @@ function App() {
         )}
       </header>
 
-      <AnnouncementBanner state={auctionState} />
+      {/* AnnouncementBanner REMOVED */}
       {/* Network Warning Banner */}
       {/* Network Warning Banner */}
       {address && !isCorrectNetwork && (
@@ -576,11 +563,7 @@ function App() {
                   Untraceable Bitcoin on Privacy DEX
                 </p>
               </div>
-              <div className="flex-shrink-0 overflow-visible mt-2 sm:mt-6">
-                <AnimatedSection delay={0} animation="fade-in-up">
-                  <BitcoinShield className="h-[196px] sm:h-[224px] md:h-[252px] lg:h-[280px]" />
-                </AnimatedSection>
-              </div>
+              {/* BitcoinShield REMOVED */}
             </div>
           </div>
 
