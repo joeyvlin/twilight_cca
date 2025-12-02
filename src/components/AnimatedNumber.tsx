@@ -6,13 +6,15 @@ interface AnimatedNumberProps {
   duration?: number;
   enabled?: boolean;
   formatter?: (value: number) => string;
+  className?: string; // Add this
 }
 
 export const AnimatedNumber = memo(function AnimatedNumber({ 
   value, 
   duration = 2000, 
   enabled = true,
-  formatter = (v) => v.toLocaleString()
+  formatter = (v) => v.toLocaleString(),
+  className = "" // Add this
 }: AnimatedNumberProps) {
   const animatedValue = useAnimatedNumber({ 
     targetValue: value, 
@@ -73,10 +75,10 @@ export const AnimatedNumber = memo(function AnimatedNumber({
   }
   
   return (
-    <span>
+    <span className={className}>
       {prefix}
       {stablePart}
-      <span key={`changing-${value}`} className="inline-block">{changingPart}</span>
+      <span key={`changing-${value}`} className={`inline-block ${className}`}>{changingPart}</span>
       {suffix}
     </span>
   );
