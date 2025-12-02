@@ -559,14 +559,14 @@ function App() {
               <div className="text-center sm:text-left flex flex-col justify-center pt-0">
                 <h1
                   id="title"
-                  className="font-headline text-3xl sm:text-4xl md:text-5xl font-light mb-2 sm:mb-3 tracking-tight text-white"
+                  className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-2 sm:mb-3 tracking-tight text-white bg-gradient-to-r from-cyan-1000/20 to-gray-800/50 px-4 py-3 rounded-lg inline-block"
                 >
                   {/* TypewriterText REPLACED with styled static text */}
                   <div className="flex flex-col gap-1">
                     <span>Twilight Token Auction</span>
                   </div>
                 </h1>
-
+                
                 {/* Badges REMOVED/DISABLED as requested */}
                 {/* <div className="flex flex-wrap gap-3 text-sm sm:text-base md:text-lg font-medium text-gray-400 mb-3">
                   <span className="px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-full">Zero Margin</span>
@@ -576,7 +576,7 @@ function App() {
 
                 <p
                   id="subtitle"
-                  className="font-body text-lg sm:text-xl md:text-2xl text-gray-300 mt-2"
+                  className="font-body text-lg sm:text-xl md:text-2xl font-light text-center mt-2 mb-6 sm:mb-8 text-cyan-400"
                 >
                   Untraceable Bitcoin on Privacy DEX
                 </p>
@@ -680,14 +680,14 @@ function App() {
                               className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
                             />
                             <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
-                              FDV of the token
+                              Token FDV
                             </div>
                           </div>
                           <div className="flex flex-col gap-1">
                             <div
                               className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
                             >
-                              $50M
+                              $50 Million
                             </div>
                             <div className="font-body text-sm sm:text-base text-gray-500">
                               Fully Diluted Valuation
@@ -716,18 +716,10 @@ function App() {
                           </div>
                         </div>
                         <div
-                          className={`font-headline text-2xl sm:text-3xl md:text-4xl ${themeClasses.textAccent}`}
+                          className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
                         >
                           {contract.nextBidId !== undefined ? (
-                            <AnimatedNumber
-                              value={Number(
-                                contract.nextBidId > 0n
-                                  ? contract.nextBidId
-                                  : 0n
-                              )}
-                              duration={1500}
-                              enabled={true}
-                            />
+                            Number(contract.nextBidId > 0n ? contract.nextBidId : 0n).toLocaleString()
                           ) : contract.isLoading ? (
                             <span className="text-gray-500">Loading...</span>
                           ) : (
@@ -749,14 +741,14 @@ function App() {
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
                           />
                           <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
-                            FDV of the token
+                            Token FDV
                           </div>
                         </div>
                         <div
-                          className={`font-headline text-2xl sm:text-3xl md:text-4xl ${themeClasses.textAccent}`}
+                          className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
                         >
                           {fdvUsd !== null ? (
-                            `$${(fdvUsd / 1_000_000).toFixed(1)}M`
+                            `$ ${(fdvUsd / 1_000_000).toFixed(1)} Million`
                           ) : (
                             <span className="text-gray-500 italic">Calculating...</span>
                           )}
@@ -783,20 +775,16 @@ function App() {
                           </div>
                         </div>
                         <div
-                          className={`font-headline text-2xl sm:text-3xl md:text-4xl ${themeClasses.textAccent}`}
+                          className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
                         >
                           {contract.currencyRaised !== undefined ? (
-                            <AnimatedNumber
-                              value={Number(contract.currencyRaised) / 1e18}
-                              duration={1500}
-                              enabled={true}
-                              formatter={(v) => {
-                                if (v >= 1000) {
-                                  return `${(v / 1000).toFixed(2)}K ETH`;
-                                }
-                                return `${v.toFixed(4)} ETH`;
-                              }}
-                            />
+                            (() => {
+                              const value = Number(contract.currencyRaised) / 1e18;
+                              if (value >= 1000) {
+                                return `${(value / 1000).toFixed(2)}K ETH`;
+                              }
+                              return `${value.toFixed(4)} ETH`;
+                            })()
                           ) : contract.isLoading ? (
                             <span className="text-gray-500">Loading...</span>
                           ) : (
