@@ -11,6 +11,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
+    "@fontsource/instrument-serif": "^5.2.8",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/roboto-mono": "^5.2.8",
     "@supabase/supabase-js": "^2.57.4",
     "@tanstack/react-query": "^5.56.0",
     "lucide-react": "^0.344.0",

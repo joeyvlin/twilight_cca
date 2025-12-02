@@ -10,10 +10,8 @@ import { BitcoinShield } from './components/BitcoinShield';
 import { AnimatedSection } from './components/AnimatedSection';
 import { TiltCard } from './components/TiltCard';
 import { StateSlider } from './components/StateSlider';
-import { TypewriterText } from './components/TypewriterText';
 import { ThemeToggle } from './components/ThemeToggle';
 import Lightning from './components/Lightning';
-import ElectricBorder from './components/ElectricBorder';
 import { useThemeClasses } from './hooks/useThemeClasses';
 import { useTilt } from './hooks/useTilt';
 import { useWeb3 } from './contexts/Web3Context';
@@ -75,7 +73,8 @@ function App() {
   >("pre-auction"); // Default to pre-auction while loading
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [titleComplete, setTitleComplete] = useState(false);
+  // Fix: Initialize titleComplete to true since we removed the animation
+  const [titleComplete, setTitleComplete] = useState(true);
   const [showContent, setShowContent] = useState(false);
   const [currentPage, setCurrentPage] = useState<"home" | "faq">(() => {
     // Initialize from URL
@@ -169,10 +168,12 @@ function App() {
   }, [currentPage]);
 
   useEffect(() => {
-    // Start showing content shortly after title starts animating
+    // Start showing content shortly after load
     const contentTimer = setTimeout(() => {
       setShowContent(true);
-    }, 500); // Start after 500ms
+      // Ensure title is visible immediately or shortly after mount
+      setTitleComplete(true);
+    }, 100); 
 
     return () => clearTimeout(contentTimer);
   }, []);
@@ -538,27 +539,24 @@ function App() {
               <div className="text-center sm:text-left flex flex-col justify-center pt-0">
                 <h1
                   id="title"
-                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 sm:mb-4 font-mono tracking-tight whitespace-nowrap pt-0 mt-0"
+                  className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 font-sans tracking-tight text-white"
                 >
-                  <TypewriterText
-                    text={[
-                      "Twilight Token Auction",
-                      "Zero Margin",
-                      "Private Leverage",
-                      "Private PnL",
-                    ]}
-                    speed={80}
-                    delayBetweenTexts={3000}
-                    onComplete={() => setTitleComplete(true)}
-                  />
+                  {/* TypewriterText REPLACED with styled static text */}
+                  <div className="flex flex-col gap-1">
+                    <span>Twilight Token Auction</span>
+                  </div>
                 </h1>
+                
+                {/* Badges REMOVED/DISABLED as requested */}
+                {/* <div className="flex flex-wrap gap-3 text-sm sm:text-base md:text-lg font-medium text-gray-400 mb-3">
+                  <span className="px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-full">Zero Margin</span>
+                  <span className="px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-full">Private Leverage</span>
+                  <span className="px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-full">Private PnL</span>
+                </div> */}
+
                 <p
                   id="subtitle"
-                  className={`text-xs sm:text-sm md:text-base lg:text-lg text-gray-400 transition-all duration-[2000ms] ease-out ${
-                    titleComplete
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-4"
-                  }`}
+                  className="text-lg sm:text-xl md:text-2xl font-light text-gray-300 mt-2"
                 >
                   Untraceable Bitcoin on Privacy DEX
                 </p>
@@ -799,15 +797,9 @@ function App() {
                           allocatedPercentage={allocatedPercentage}
                         />
                       ) : (
-                        <ElectricBorder
-                          color="#7df9ff"
-                          speed={0.75}
-                          chaos={0.375}
-                          thickness={1.5}
-                          className="h-full"
-                          style={{ borderRadius: "16px" }}
-                        >
-                          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg p-6 h-full flex items-center justify-center">
+                        /* ElectricBorder REPLACED with static border div */
+                        <div className="h-full rounded-2xl p-[2px] bg-gradient-to-br from-blue-500 to-purple-600">
+                          <div className="bg-gray-900 rounded-2xl p-6 h-full flex items-center justify-center">
                             <div className="text-center">
                               <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                                 Auction Starts In
@@ -898,7 +890,7 @@ function App() {
                               </p>
                             </div>
                           </div>
-                        </ElectricBorder>
+                        </div>
                       )}
                     </div>
                   </AnimatedSection>
