@@ -292,7 +292,8 @@ function App() {
         })()
       : null;
   return (
-    <div className={`min-h-screen ${themeClasses.mainBackground} text-white`}>
+    // UI Fix: Added flex and flex-col to the wrapper
+    <div className={`min-h-screen flex flex-col ${themeClasses.mainBackground} text-white`}>
       {/* Lightning Background REMOVED */}
       
       <header
@@ -739,7 +740,8 @@ function App() {
       )}
       {/* End of Hero and Summary Section */}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-2 sm:py-4">
+      {/* UI Fix: Added flex-grow to push footer down */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-2 sm:py-4 flex-grow w-full">
         {currentPage === "faq" ? (
           <FAQ />
         ) : (
