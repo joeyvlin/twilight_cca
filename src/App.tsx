@@ -491,50 +491,41 @@ function App() {
           </nav>
         </div>
 
-        {/* Mobile menu dropdown - Slide down from header */}
+        {/* Mobile menu dropdown - Push content down */}
         {mobileMenuOpen && (
-          <>
-            {/* Backdrop overlay */}
-            <div 
-              className="fixed md:hidden inset-0 z-40 bg-black/50"
-              onClick={() => setMobileMenuOpen(false)}
-            />
-            
-            {/* Menu panel */}
-            <div className="absolute md:hidden top-full left-0 w-full z-50 border-t border-gray-800 bg-gray-900/98 backdrop-blur-md shadow-xl">
-              <div className="px-4 sm:px-6 py-6">
-                <div className="flex flex-col gap-3">
-                  <a
-                    href="/faq"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setCurrentPage(currentPage === "faq" ? "home" : "faq");
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`transition-colors text-base font-medium py-3 px-4 rounded-lg ${
-                      currentPage === "faq"
-                        ? `${themeClasses.textAccent} ${themeClasses.bgAccent} bg-opacity-20`
-                        : "text-gray-300 hover:text-white hover:bg-gray-800"
-                    }`}
-                  >
-                    Auction Details
-                  </a>
-                  <a
-                    href="https://quasar-8.gitbook.io/twilight-docs"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-300 hover:text-white transition-colors text-base font-medium py-3 px-4 rounded-lg hover:bg-gray-800"
-                    onClick={() => {
-                      // Let the link work normally, just close menu
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Twilight Docs
-                  </a>
-                </div>
+          <div className="md:hidden border-t border-gray-800 bg-gray-900 shadow-xl">
+            <div className="px-4 sm:px-6 py-4">
+              <div className="flex flex-col gap-2">
+                <a
+                  href="/faq"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage(currentPage === "faq" ? "home" : "faq");
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`transition-colors text-base font-medium py-2.5 px-4 rounded-lg ${
+                    currentPage === "faq"
+                      ? `${themeClasses.textAccent} ${themeClasses.bgAccent} bg-opacity-20`
+                      : "text-gray-300 hover:text-white hover:bg-gray-800"
+                  }`}
+                >
+                  Auction Details
+                </a>
+                <a
+                  href="https://quasar-8.gitbook.io/twilight-docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors text-base font-medium py-2.5 px-4 rounded-lg hover:bg-gray-800"
+                  onClick={() => {
+                    // Let the link work normally, just close menu
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Twilight Docs
+                </a>
               </div>
             </div>
-          </>
+          </div>
         )}
       </header>
 
