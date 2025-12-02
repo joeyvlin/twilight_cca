@@ -316,7 +316,7 @@ function App() {
       {/* Lightning Background REMOVED */}
 
       <header
-        className={`relative border-b border-gray-800 ${themeClasses.headerBackground} bg-opacity-80 backdrop-blur-sm z-10`}
+        className={`relative border-b border-gray-800 ${themeClasses.headerBackground} bg-opacity-80 backdrop-blur-sm z-40`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -493,32 +493,34 @@ function App() {
 
         {/* Mobile menu dropdown - UI Improvement: Absolute overlay instead of push */}
         {mobileMenuOpen && (
-          <div className="absolute top-full left-0 w-full z-50 border-t border-gray-800 bg-gray-900/95 backdrop-blur-md shadow-xl">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-4">
-              <a
-                href="/faq"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage(currentPage === "faq" ? "home" : "faq");
-                  setMobileMenuOpen(false);
-                }}
-                className={`transition-colors text-sm ${
-                  currentPage === "faq"
-                    ? themeClasses.textAccent
-                    : "text-gray-300 hover:text-white"
-                }`}
-              >
-                Auction Details
-              </a>
-              <a
-                href="https://quasar-8.gitbook.io/twilight-docs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-300 hover:text-white transition-colors text-sm"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Twilight Docs
-              </a>
+          <div className="fixed md:hidden top-0 left-0 w-full h-screen z-50 bg-gray-900/95 backdrop-blur-md">
+            <div className="pt-20 pb-4 px-4 sm:px-6">
+              <div className="flex flex-col gap-4">
+                <a
+                  href="/faq"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage(currentPage === "faq" ? "home" : "faq");
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`transition-colors text-base py-2 ${
+                    currentPage === "faq"
+                      ? themeClasses.textAccent
+                      : "text-gray-300 hover:text-white"
+                  }`}
+                >
+                  Auction Details
+                </a>
+                <a
+                  href="https://docs.twilight.finance"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors text-base py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Twilight Docs
+                </a>
+              </div>
             </div>
           </div>
         )}
@@ -559,7 +561,7 @@ function App() {
               <div className="text-center sm:text-left flex flex-col justify-center pt-0">
                 <h1
                   id="title"
-                  className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-2 sm:mb-3 tracking-tight text-white bg-gradient-to-r from-cyan-1000/20 to-gray-800/50 px-4 py-3 rounded-lg inline-block"
+                  className="font-headline text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-2 sm:mb-3 tracking-tight text-white bg-gradient-to-r from-cyan-1000/20 to-gray-800/50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg inline-block"
                 >
                   {/* TypewriterText REPLACED with styled static text */}
                   <div className="flex flex-col gap-1">
@@ -576,7 +578,7 @@ function App() {
 
                 <p
                   id="subtitle"
-                  className={`font-body text-lg sm:text-xl md:text-2xl font-light text-center mt-2 mb-6 sm:mb-8 ${themeClasses.textAccent}`}
+                  className={`font-body text-base sm:text-lg md:text-xl lg:text-2xl font-light text-center mt-2 mb-6 sm:mb-8 ${themeClasses.textAccent}`}
                 >
                   Untraceable Bitcoin on Privacy DEX
                 </p>
