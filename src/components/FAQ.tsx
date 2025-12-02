@@ -281,7 +281,7 @@ export function FAQ() {
 
   return (
     <div className="max-w-4xl mx-auto py-8 sm:py-12 px-4 sm:px-6">
-      <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 sm:mb-12 text-center">
+      <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-light mb-8 sm:mb-12 text-center">
         Twilight Token Auction: Details & FAQ
       </h1>
 
@@ -289,7 +289,7 @@ export function FAQ() {
         {faqData.map((section, sectionIndex) => (
           <div key={sectionIndex} className="mb-12">
             <h2
-              className={`text-2xl sm:text-3xl font-bold mb-6 ${themeClasses.textAccent}`}
+              className={`font-body text-2xl sm:text-3xl font-semibold mb-6 ${themeClasses.textAccent}`}
             >
               {section.title}
             </h2>
@@ -308,7 +308,7 @@ export function FAQ() {
                       onClick={() => toggleItem(sectionIndex, itemIndex)}
                       className="w-full px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between text-left hover:bg-gray-800/50 transition-colors"
                     >
-                      <span className="text-base sm:text-lg font-semibold pr-4">
+                      <span className="font-body text-base sm:text-lg font-semibold pr-4">
                         {item.question}
                       </span>
                       {isExpanded ? (
@@ -324,7 +324,7 @@ export function FAQ() {
 
                     {isExpanded && (
                       <div className="px-4 sm:px-6 pb-4 sm:pb-5 pt-0">
-                        <div className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                        <div className="font-body text-sm sm:text-base text-gray-300 leading-relaxed">
                           {renderAnswer(item.answer)}
                         </div>
                       </div>
