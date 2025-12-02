@@ -25,10 +25,6 @@ export default {
         border: designSystem.colors.border,
       },
       fontFamily: {
-        sans: ["Poppins", ...designSystem.typography.fontFamily.sans],
-        mono: ["JetBrains Mono", ...designSystem.typography.fontFamily.mono],
-        sans: ["Poppins", ...designSystem.typography.fontFamily.sans],
-        mono: ["JetBrains Mono", ...designSystem.typography.fontFamily.mono],
         headline: ["Instrument Serif", "serif"],
         body: ["Inter", "sans-serif"],
         monoDisplay: ["Roboto Mono", "monospace"], // temporary name to avoid clash

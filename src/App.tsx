@@ -366,11 +366,7 @@ function App() {
                 e.preventDefault();
                 setCurrentPage(currentPage === "faq" ? "home" : "faq");
               }}
-              className={`hidden md:block transition-colors text-sm sm:text-base ${
-                currentPage === "faq"
-                  ? themeClasses.textAccent
-                  : "text-gray-300 hover:text-white"
-              }`}
+              className={`hidden md:block transition-colors text-sm sm:text-base ${themeClasses.textAccent} hover:opacity-80`}
               // style={{ transformStyle: "preserve-3d" }}
             >
               Auction Details
@@ -380,7 +376,7 @@ function App() {
               target="_blank"
               rel="noopener noreferrer"
               // ref={navLink2Tilt}
-              className="hidden md:block text-gray-300 hover:text-white transition-colors text-sm sm:text-base"
+              className={`hidden md:block transition-colors text-sm sm:text-base ${themeClasses.textAccent} hover:opacity-80`}
               // style={{ transformStyle: "preserve-3d" }}
             >
               Twilight Docs
@@ -515,7 +511,7 @@ function App() {
                   href="https://quasar-8.gitbook.io/twilight-docs"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-white transition-colors text-base font-medium py-2.5 px-4 rounded-lg hover:bg-gray-800"
+                  className={`${themeClasses.textAccent} hover:opacity-80 transition-colors text-base font-medium py-2.5 px-4 rounded-lg hover:bg-gray-800`}
                   onClick={() => {
                     // Let the link work normally, just close menu
                     setMobileMenuOpen(false);
@@ -564,14 +560,14 @@ function App() {
               <div className="text-center sm:text-left flex flex-col justify-center pt-0">
                 <h1
                   id="title"
-                  className="font-headline text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-2 sm:mb-3 tracking-tight text-white bg-gradient-to-r from-cyan-1000/20 to-gray-800/50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg inline-block"
+                  className="font-headline text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light mb-0.5 sm:mb-1 tracking-tight text-white bg-gradient-to-r from-cyan-1000/20 to-gray-800/50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg inline-block"
                 >
                   {/* TypewriterText REPLACED with styled static text */}
                   <div className="flex flex-col gap-1">
                     <span>Twilight Token Auction</span>
                   </div>
                 </h1>
-                
+
                 {/* Badges REMOVED/DISABLED as requested */}
                 {/* <div className="flex flex-wrap gap-3 text-sm sm:text-base md:text-lg font-medium text-gray-400 mb-3">
                   <span className="px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-full">Zero Margin</span>
@@ -581,7 +577,7 @@ function App() {
 
                 <p
                   id="subtitle"
-                  className={`font-body text-base sm:text-lg md:text-xl lg:text-2xl font-light text-center mt-2 mb-6 sm:mb-8 ${themeClasses.textAccent}`}
+                  className={`font-body text-base sm:text-lg md:text-xl lg:text-2xl font-normal text-center mt-0 mb-6 sm:mb-8 ${themeClasses.textAccent}`}
                 >
                   Untraceable Bitcoin on Privacy DEX
                 </p>
@@ -612,7 +608,7 @@ function App() {
                             <Coins
                               className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
                             />
-                            <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
+                            <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
                               Tokens Available
                             </div>
                           </div>
@@ -645,7 +641,7 @@ function App() {
                             <Clock
                               className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
                             />
-                            <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
+                            <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
                               Auction Length
                             </div>
                           </div>
@@ -684,7 +680,7 @@ function App() {
                             <Coins
                               className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
                             />
-                            <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
+                            <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
                               Token FDV
                             </div>
                           </div>
@@ -716,7 +712,7 @@ function App() {
                           <HandCoins
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
                           />
-                          <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
+                          <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
                             Total Bids
                           </div>
                         </div>
@@ -724,7 +720,9 @@ function App() {
                           className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
                         >
                           {contract.nextBidId !== undefined ? (
-                            Number(contract.nextBidId > 0n ? contract.nextBidId : 0n).toLocaleString()
+                            Number(
+                              contract.nextBidId > 0n ? contract.nextBidId : 0n
+                            ).toLocaleString()
                           ) : contract.isLoading ? (
                             <span className="text-gray-500">Loading...</span>
                           ) : (
@@ -745,7 +743,7 @@ function App() {
                           <Coins
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
                           />
-                          <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
+                          <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
                             Token FDV
                           </div>
                         </div>
@@ -755,7 +753,9 @@ function App() {
                           {fdvUsd !== null ? (
                             `$ ${(fdvUsd / 1_000_000).toFixed(1)} Million`
                           ) : (
-                            <span className="text-gray-500 italic">Calculating...</span>
+                            <span className="text-gray-500 italic">
+                              Calculating...
+                            </span>
                           )}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
@@ -775,7 +775,7 @@ function App() {
                           <Lock
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
                           />
-                          <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
+                          <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
                             Currency Raised
                           </div>
                         </div>
@@ -784,8 +784,11 @@ function App() {
                         >
                           {contract.currencyRaised !== undefined ? (
                             (() => {
-                              const value = Number(contract.currencyRaised) / 1e18;
-                              const usdValue = ethUsdPrice ? value * ethUsdPrice : null;
+                              const value =
+                                Number(contract.currencyRaised) / 1e18;
+                              const usdValue = ethUsdPrice
+                                ? value * ethUsdPrice
+                                : null;
                               return (
                                 <div className="flex flex-col">
                                   <span className="font-headline">
@@ -795,8 +798,10 @@ function App() {
                                   </span>
                                   {usdValue !== null && (
                                     <span className="font-body text-sm sm:text-base text-gray-400 mt-1">
-                                      ${usdValue >= 1000
-                                        ? `${(usdValue / 1000).toFixed(2)}K`                                        : usdValue.toFixed(2)}
+                                      $
+                                      {usdValue >= 1000
+                                        ? `${(usdValue / 1000).toFixed(2)}K`
+                                        : usdValue.toFixed(2)}
                                     </span>
                                   )}
                                 </div>
@@ -897,7 +902,7 @@ function App() {
                         <div className="h-full rounded-2xl p-[2px] bg-gradient-to-br from-blue-500 to-purple-600">
                           <div className="bg-gray-900 rounded-2xl p-6 h-full flex items-center justify-center">
                             <div className="text-center">
-                              <h2 className="text-xl sm:text-2xl font-semibold font-body text-gray-300 mb-4">
+                              <h2 className="text-xl sm:text-2xl font-normal font-body text-gray-300 mb-4">
                                 Auction Starts In
                               </h2>
 

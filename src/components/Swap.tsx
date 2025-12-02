@@ -40,7 +40,7 @@ export function Swap({
           }`}
         />
         <h2
-          className={`text-lg sm:text-xl font-semibold font-body ${
+          className={`text-lg sm:text-xl font-normal font-body ${
             disabled ? "text-gray-500" : ""
           }`}
         >
@@ -125,7 +125,7 @@ export function Swap({
 
         <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gray-700">
           <div>
-            <div className="text-xs sm:text-sm text-gray-400 mb-1">
+            <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 mb-1">
               Pool Depth
             </div>
             <div
@@ -137,7 +137,7 @@ export function Swap({
             </div>
           </div>
           <div>
-            <div className="text-xs sm:text-sm text-gray-400 mb-1">
+            <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 mb-1">
               Maximum Price (USD)
             </div>
             <div
@@ -149,7 +149,7 @@ export function Swap({
             </div>
           </div>
           <div>
-            <div className="text-xs sm:text-sm text-gray-400 mb-1">
+            <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 mb-1">
               Slippage
             </div>
             <div
@@ -161,7 +161,7 @@ export function Swap({
             </div>
           </div>
           <div>
-            <div className="text-xs sm:text-sm text-gray-400 mb-1">
+            <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 mb-1">
               24h Volume
             </div>
             <div

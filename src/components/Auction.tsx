@@ -59,11 +59,11 @@ export function Auction({
             <Gavel
               className={`w-3 h-3 sm:w-4 sm:h-4 ${themeClasses.textAccent}`}
             />
-            <h2 className={`text-lg sm:text-xl font-semibold font-body text-gray-300`}>
+            <h2 className={`text-lg sm:text-xl font-normal font-body text-gray-300`}>
               Twilight Real-Time Auction
             </h2>
           </div>
-          <span className="px-1.5 sm:px-2 py-0.5 bg-green-500 text-xs font-semibold rounded-full uppercase">
+          <span className="px-1.5 sm:px-2 py-0.5 bg-green-500 text-xs font-monoDisplay font-semibold rounded-full uppercase">
             Live
           </span>
         </div>

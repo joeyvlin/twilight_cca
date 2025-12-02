@@ -281,15 +281,15 @@ export function FAQ() {
 
   return (
     <div className="max-w-4xl mx-auto py-8 sm:py-12 px-4 sm:px-6">
-      <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-light mb-8 sm:mb-12 text-center">
-        Twilight Token Auction: Details & FAQ
+      <h1 className={`font-headline text-4xl sm:text-5xl md:text-6xl font-light mb-8 sm:mb-12 text-center ${themeClasses.textAccent}`}>
+        Twilight Token Auction Details{" "}
       </h1>
 
       <div className="space-y-8">
         {faqData.map((section, sectionIndex) => (
           <div key={sectionIndex} className="mb-12">
             <h2
-              className={`font-body text-2xl sm:text-3xl font-semibold mb-6 ${themeClasses.textAccent}`}
+              className={`font-body text-2xl sm:text-3xl font-normal mb-6 ${themeClasses.textAccent}`}
             >
               {section.title}
             </h2>
@@ -308,7 +308,7 @@ export function FAQ() {
                       onClick={() => toggleItem(sectionIndex, itemIndex)}
                       className="w-full px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between text-left hover:bg-gray-800/50 transition-colors"
                     >
-                      <span className="font-body text-base sm:text-lg font-semibold pr-4">
+                      <span className="font-body text-base sm:text-lg font-normal pr-4">
                         {item.question}
                       </span>
                       {isExpanded ? (

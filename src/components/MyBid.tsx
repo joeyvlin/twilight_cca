@@ -187,7 +187,7 @@ function ActiveBids({ bidIds }: { bidIds: bigint[] }) {
         <HandCoins
           className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
         />
-        <h2 className="text-lg sm:text-xl font-semibold font-body text-gray-300">Active Bids</h2>
+        <h2 className="text-lg sm:text-xl font-normal font-body text-gray-300">Active Bids</h2>
         {bidIds.length > 0 && (
           <span className="text-xs sm:text-sm text-gray-400">
             ({bidIds.length})
@@ -470,7 +470,7 @@ export function MyBid({ activeBids }: MyBidProps) {
           <HandCoins
             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
           />
-          <h2 className="text-lg sm:text-xl font-semibold font-body text-gray-300">My Bid</h2>
+          <h2 className="text-lg sm:text-xl font-normal font-body text-gray-300">My Bid</h2>
         </div>
 
         {!isConnected && (
@@ -487,7 +487,7 @@ export function MyBid({ activeBids }: MyBidProps) {
 
         <div className="space-y-3 sm:space-y-4">
           <div>
-            <label className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2 block">
+            <label className="font-monoDisplay text-xs sm:text-sm text-gray-400 mb-1 block">
               Bid Amount (ETH)
             </label>
             <div className="relative">
@@ -529,7 +529,7 @@ export function MyBid({ activeBids }: MyBidProps) {
           </div>
 
           <div>
-            <label className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2 block">
+            <label className="font-monoDisplay text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2 block">
               Maximum Price Limit (ETH per token)
             </label>
             {floorPrice != null && floorPrice > 0n && (
