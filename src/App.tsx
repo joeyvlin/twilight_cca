@@ -822,6 +822,12 @@ function App() {
                                 )
                               : 0
                           }
+                          // Pass floor price from contract (convert from BigInt Q96 to number)
+                          floorPrice={
+                            contract.floorPrice
+                              ? Number(contract.floorPrice) / Number(2n ** 96n)
+                              : undefined
+                          }
                           allocatedTokens={
                             contract.totalCleared
                               ? Number(contract.totalCleared)

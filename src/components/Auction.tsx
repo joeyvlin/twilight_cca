@@ -16,6 +16,8 @@ interface AuctionProps {
   allocatedTokens?: number;
   totalTokens?: number;
   allocatedPercentage?: number;
+  // Add floorPrice prop
+  floorPrice?: number;
 }
 
 export function Auction({ 
@@ -28,8 +30,16 @@ export function Auction({
   allocatedTokens = 2500000,
   totalTokens = 5000000,
   allocatedPercentage = 50,
+  // Default floor price if not provided
+  floorPrice = 0.00001, 
 }: AuctionProps) {
   const themeClasses = useThemeClasses();
+  
+  // Helper to decide what price to show
+  // Use clearing price if > 0, otherwise use floor price
+  const displayPrice = lastClearingPrice > 0 ? lastClearingPrice : floorPrice;
+  const priceLabel = lastClearingPrice > 0 ? "Last Clearing Price" : "Floor Price";
+
   /*
   const block1Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
   const block2Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
@@ -85,15 +95,15 @@ export function Auction({
             // style={{ transformStyle: "preserve-3d" }}
           >
             <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
-              Last Clearing Price
+              {priceLabel}
             </div>
             <div
               className={`text-lg sm:text-xl md:text-2xl font-bold ${themeClasses.textAccent}`}
             >
-              {lastClearingPrice > 0 ? (
-                `${lastClearingPrice.toFixed(6)} ETH`
+              {displayPrice > 0 ? (
+                `${displayPrice.toFixed(6)} ETH`
               ) : (
-                <span className="text-gray-500">No price yet</span>
+                <span className="text-gray-500">Loading...</span>
               )}
             </div>
           </div>

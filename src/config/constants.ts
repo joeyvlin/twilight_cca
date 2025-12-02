@@ -28,8 +28,8 @@ export const BID_QUERY_CONFIG = {
 
 // Block number - more frequent
 export const BLOCK_QUERY_CONFIG = {
-  refetchInterval: 30000, // 30 seconds
-  staleTime: 20000, // 20 seconds
+  refetchInterval: 30000,
+  staleTime: 20000,
   retry: 2,
   retryDelay: 1000,
 } as const;
