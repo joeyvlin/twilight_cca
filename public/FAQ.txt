@@ -1,10 +1,10 @@
-<FAQ>Twilight Token Lightning Sale Auction (Continuous Clearing Auction)
+<FAQ> Auction mechanics 
 
 What is a continuous clearing auction?
 
- CCA is an auction format where bids and asks are matched continuously, block by block, allowing real-time price discovery and gradual token distribution instead of discrete, single-round events. For every block there is a certain quantity of tokens available, for which a single fair token price, the clearing price, is calculated for. The clearing price carries over and becomes the floor price for the next block, and a new clearing price is calculated. This process continues until the last block, after which the remaining tokens are transferred into a liquidity pool. 
+ Continous Clearing Auction (CAA) is an auction format where bids and asks are matched continuously, block by block, allowing real-time price discovery and gradual token distribution instead of discrete, single-round events. For every block there is a certain quantity of tokens available, for which a single fair token price, the clearing price, is calculated for. The clearing price carries over and becomes the floor price for the next block, and a new clearing price is calculated. This process continues until the last block, after which the remaining tokens are transferred into a liquidity pool. 
 
-On a high level, what is the flow of the Twilight Token Lightning Sale Auction?
+On a high level, what is the flow of the Auction?
 
  The high level flow is as follows:
     (1) Initial Bid - From the time the lightning sale auction begins until it ends, you can submit a bid with a maximum budget and price you are genuinely willing to pay, then deposit the full amount (refundable) to the auction smart contract from Uniswap.

@@ -282,16 +282,18 @@ export function FAQ() {
   return (
     <div className="max-w-4xl mx-auto py-8 sm:py-12 px-4 sm:px-6">
       <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 sm:mb-12 text-center">
-        Frequently Asked Questions
+        Twilight Token Auction: Details & FAQ
       </h1>
 
       <div className="space-y-8">
         {faqData.map((section, sectionIndex) => (
           <div key={sectionIndex} className="mb-12">
-            <h2 className={`text-2xl sm:text-3xl font-bold mb-6 ${themeClasses.textAccent}`}>
+            <h2
+              className={`text-2xl sm:text-3xl font-bold mb-6 ${themeClasses.textAccent}`}
+            >
               {section.title}
             </h2>
-            
+
             <div className="space-y-4">
               {section.items.map((item, itemIndex) => {
                 const key = `${sectionIndex}-${itemIndex}`;
@@ -310,12 +312,16 @@ export function FAQ() {
                         {item.question}
                       </span>
                       {isExpanded ? (
-                        <ChevronUp className={`w-5 h-5 flex-shrink-0 ${themeClasses.textAccent}`} />
+                        <ChevronUp
+                          className={`w-5 h-5 flex-shrink-0 ${themeClasses.textAccent}`}
+                        />
                       ) : (
-                        <ChevronDown className={`w-5 h-5 flex-shrink-0 ${themeClasses.textAccent}`} />
+                        <ChevronDown
+                          className={`w-5 h-5 flex-shrink-0 ${themeClasses.textAccent}`}
+                        />
                       )}
                     </button>
-                    
+
                     {isExpanded && (
                       <div className="px-4 sm:px-6 pb-4 sm:pb-5 pt-0">
                         <div className="text-sm sm:text-base text-gray-300 leading-relaxed">
