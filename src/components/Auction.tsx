@@ -1,7 +1,6 @@
 import { Gavel } from 'lucide-react';
-import { useTilt } from '../hooks/useTilt';
+// import { useTilt } from '../hooks/useTilt';
 import { useThemeClasses } from '../hooks/useThemeClasses';
-import ElectricBorder from './ElectricBorder';
 
 interface AuctionProps {
   countdown1: { days: number; hours: number; minutes: number; seconds: number }; 
@@ -17,6 +16,8 @@ interface AuctionProps {
   allocatedTokens?: number;
   totalTokens?: number;
   allocatedPercentage?: number;
+  // Add floorPrice prop
+  floorPrice?: number;
 }
 
 export function Auction({ 
@@ -29,24 +30,27 @@ export function Auction({
   allocatedTokens = 2500000,
   totalTokens = 5000000,
   allocatedPercentage = 50,
+  // Default floor price if not provided
+  floorPrice = 0.00001, 
 }: AuctionProps) {
   const themeClasses = useThemeClasses();
+  
+  // Helper to decide what price to show
+  // Use clearing price if > 0, otherwise use floor price
+  const displayPrice = lastClearingPrice > 0 ? lastClearingPrice : floorPrice;
+  const priceLabel = lastClearingPrice > 0 ? "Last Clearing Price" : "Floor Price";
+
+  /*
   const block1Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
   const block2Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
   const block3Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
   const block4Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
   const block5Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
+  */
 
   return (
-    <ElectricBorder
-      color="#7df9ff"
-      speed={0.75}
-      chaos={0.375}
-      thickness={1.5}
-      style={{ borderRadius: 16 }}
-      className="h-full"
-    >
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg p-3 sm:p-4 md:p-5 h-full w-full flex flex-col">
+    <div className="h-full rounded-2xl p-[2px] bg-gradient-to-br from-blue-500 to-purple-600">
+      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-3 sm:p-4 md:p-5 h-full w-full flex flex-col">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <div className="flex items-center gap-1 sm:gap-1.5">
             <Gavel
@@ -63,10 +67,10 @@ export function Auction({
 
         <div className="grid grid-cols-2 grid-rows-3 gap-3 sm:gap-4 md:gap-5 flex-1 auto-rows-fr">
           <div
-            ref={block1Tilt}
+            // ref={block1Tilt}
             id="current-block"
             className={`border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors flex flex-col items-center justify-center text-center cursor-pointer`}
-            style={{ transformStyle: "preserve-3d" }}
+            // style={{ transformStyle: "preserve-3d" }}
           >
             <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
               Current Block
@@ -85,29 +89,29 @@ export function Auction({
             </div>
           </div>
           <div
-            ref={block2Tilt}
+            // ref={block2Tilt}
             id="clearing-price"
             className={`border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors flex flex-col items-center justify-center text-center cursor-pointer`}
-            style={{ transformStyle: "preserve-3d" }}
+            // style={{ transformStyle: "preserve-3d" }}
           >
             <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
-              Last Clearing Price
+              {priceLabel}
             </div>
             <div
               className={`text-lg sm:text-xl md:text-2xl font-bold ${themeClasses.textAccent}`}
             >
-              {lastClearingPrice > 0 ? (
-                `${lastClearingPrice.toFixed(6)} ETH`
+              {displayPrice > 0 ? (
+                `${displayPrice.toFixed(6)} ETH`
               ) : (
-                <span className="text-gray-500">No price yet</span>
+                <span className="text-gray-500">Loading...</span>
               )}
             </div>
           </div>
           <div
-            ref={block3Tilt}
+            // ref={block3Tilt}
             id="block-ends"
             className={`border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors flex flex-col items-center justify-center text-center cursor-pointer`}
-            style={{ transformStyle: "preserve-3d" }}
+            // style={{ transformStyle: "preserve-3d" }}
           >
             <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
               Block Ends In
@@ -133,10 +137,10 @@ export function Auction({
             </div>
           </div>
           <div
-            ref={block4Tilt}
+            // ref={block4Tilt}
             id="auction-ends"
             className={`border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:p-6 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors flex flex-col items-center justify-center text-center cursor-pointer`}
-            style={{ transformStyle: "preserve-3d" }}
+            // style={{ transformStyle: "preserve-3d" }}
           >
             <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
               Auction Ends In
@@ -162,10 +166,10 @@ export function Auction({
             </div>
           </div>
           <div
-            ref={block5Tilt}
+            // ref={block5Tilt}
             id="tokens-allocated"
             className={`col-span-2 border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors flex flex-col items-center justify-center text-center cursor-pointer`}
-            style={{ transformStyle: "preserve-3d" }}
+            // style={{ transformStyle: "preserve-3d" }}
           >
             <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
               Allocated Tokens
@@ -180,7 +184,7 @@ export function Auction({
           </div>
         </div>
       </div>
-    </ElectricBorder>
+    </div>
   );
 }
 

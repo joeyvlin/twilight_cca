@@ -198,7 +198,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     functionName: "clearingPrice",
     query: {
       ...STATIC_QUERY_CONFIG,
-      enabled: isConfigValid,
+      enabled: isConfigValid && !auctionState,
     },
   });
 

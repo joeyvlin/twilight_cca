@@ -1,12 +1,13 @@
 import { HandCoins } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useTilt } from "../hooks/useTilt";
+// import { useTilt } from "../hooks/useTilt";
 import { useThemeClasses } from "../hooks/useThemeClasses";
 import { useSubmitBid } from "../hooks/useAuctionContract";
 import { useWeb3 } from "../contexts/Web3Context";
 import { useContract } from "../contexts/ContractContext";
 import { useUserBids, useBidData } from "../hooks/useUserBids";
 import { parseEther } from "viem";
+import { toast } from "sonner";
 
 
 interface MyBidProps {
@@ -17,25 +18,37 @@ interface MyBidProps {
  * Parse error and return user-friendly message
  */
 function parseError(error: any): string {
+  // Debug log to see the actual error structure
+  console.log("⚠️ parseError received:", error);
+
   if (!error) return "An unknown error occurred";
 
-  // Check for user rejection errors
-  const errorMessage = error?.message?.toLowerCase() || "";
-  const errorCode = error?.code || error?.shortMessage || "";
+  // 1. Check for standard Error object message
+  const errorMessage = (
+    error?.message || 
+    error?.shortMessage || 
+    error?.details || 
+    (typeof error === 'string' ? error : "")
+  ).toLowerCase();
 
-  // User rejected transaction in MetaMask
+  const errorCode = error?.code || error?.cause?.code;
+
+  console.log("⚠️ Parsed error details:", { errorMessage, errorCode });
+
+  // 2. User rejected transaction (MetaMask specific patterns)
   if (
     errorCode === 4001 ||
     errorCode === "ACTION_REJECTED" ||
     errorMessage.includes("user rejected") ||
     errorMessage.includes("user denied") ||
     errorMessage.includes("rejected") ||
-    errorMessage.includes("denied transaction")
+    errorMessage.includes("denied transaction") ||
+    errorMessage.includes("user canceled")
   ) {
     return "Transaction was cancelled. No changes were made.";
   }
 
-  // Network errors
+  // 3. Network errors
   if (
     errorMessage.includes("network") ||
     errorMessage.includes("connection") ||
@@ -44,7 +57,7 @@ function parseError(error: any): string {
     return "Network error. Please check your connection and try again.";
   }
 
-  // Insufficient funds
+  // 4. Insufficient funds
   if (
     errorMessage.includes("insufficient funds") ||
     errorMessage.includes("balance") ||
@@ -53,14 +66,14 @@ function parseError(error: any): string {
     return "Insufficient funds. Please check your wallet balance.";
   }
 
-  // Gas estimation errors
+  // 5. Gas estimation errors / Reverts
   if (errorMessage.includes("gas") || errorMessage.includes("execution reverted")) {
     return "Transaction failed. Please check your bid parameters and try again.";
   }
 
-  // Return original message if it's short and readable, otherwise generic message
-  const originalMessage = error?.message || error?.shortMessage || "";
-  if (originalMessage && originalMessage.length < 100) {
+  // 6. Return original message if it's short and readable
+  const originalMessage = error?.shortMessage || error?.message || "";
+  if (originalMessage && originalMessage.length < 150) {
     return originalMessage;
   }
 
@@ -143,15 +156,15 @@ function BidItem({ bidId }: { bidId: bigint }) {
 
 function ActiveBids({ bidIds }: { bidIds: bigint[] }) {
   const themeClasses = useThemeClasses();
-  const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
+  // const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
   const { address, isConnected } = useWeb3();
   // const { bidIds } = useUserBids();
 
   return (
     <div
-      ref={tiltRef}
+      // ref={tiltRef}
       className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6"
-      style={{ transformStyle: "preserve-3d" }}
+      // style={{ transformStyle: "preserve-3d" }}
     >
       <div className="flex items-center gap-2 mb-4 sm:mb-6">
         <HandCoins
@@ -186,7 +199,7 @@ function ActiveBids({ bidIds }: { bidIds: bigint[] }) {
 
 export function MyBid({ activeBids }: MyBidProps) {
   const themeClasses = useThemeClasses();
-  const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
+  // const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
   const { address, isConnected } = useWeb3();
   const { tickSpacing, floorPrice, isLoadingPriceParams, nextBidId } =
     useContract();
@@ -196,46 +209,38 @@ export function MyBid({ activeBids }: MyBidProps) {
 
   const [budget, setBudget] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [txHash, setTxHash] = useState<string>("");
-  // Clear errors when user starts typing or when transaction state resets
-  useEffect(() => {
-    if (submitError) {
-      const timer = setTimeout(() => {
-        setSubmitError(null);
-      }, 3000); // Auto-clear after 3 seconds
-      return () => clearTimeout(timer);
-    }
-  }, [submitError]);
-
-  // // Clear errors when transaction succeeds
-  // useEffect(() => {
-  //   if (isSuccess) {
-  //     setSubmitError(null);
-  //   }
-  // }, [isSuccess]);
-  // Clear form fields after successful submission
-  // Handle success state and clear form after delay
+  
+  // Handle success state
   useEffect(() => {
     if (isSuccess) {
-      setShowSuccess(true);
-      setSubmitError(null);
-
-      // Store the hash so it persists even if wagmi resets it
+      // Store the hash so it persists
       if (hash) {
         setTxHash(hash);
         console.log("💾 Stored transaction hash:", hash);
       }
-      // Clear form and hide success message after 3 seconds
-      const timer = setTimeout(() => {
-        setBudget("");
-        setMaxPrice("");
-        setShowSuccess(false);
-      }, 3000); // Show success for 3 seconds
-      return () => clearTimeout(timer);
+      
+      // Show success toast
+      toast.success("Bid submitted successfully!", {
+        description: hash ? (
+          <a
+            href={getEtherscanUrl(hash)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-green-200"
+          >
+            View on Etherscan
+          </a>
+        ) : undefined,
+        duration: 5000,
+      });
+
+      // Clear form
+      setBudget("");
+      setMaxPrice("");
     }
   }, [isSuccess, hash]);
+
   // Store hash when it becomes available (even before success)
   useEffect(() => {
     if (hash) {
@@ -245,24 +250,24 @@ export function MyBid({ activeBids }: MyBidProps) {
   }, [hash]);
   // Clear success message when user starts entering new bid
   useEffect(() => {
-    if (showSuccess && (budget || maxPrice)) {
-      setShowSuccess(false);
+    if (isSuccess && (budget || maxPrice)) {
+      // setShowSuccess(false); // This is now handled by toast
     }
-  }, [budget, maxPrice, showSuccess]);
+  }, [budget, maxPrice, isSuccess]);
   // Clear errors when user starts a new transaction attempt
   useEffect(() => {
     if (isPending) {
-      setSubmitError(null);
+      // setSubmitError(null); // This is now handled by toast
     }
   }, [isPending]);
 
   // Clear errors when user starts typing (optional - provides immediate feedback)
   useEffect(() => {
-    if (submitError && (budget || maxPrice)) {
+    if (error && (budget || maxPrice)) {
       // Clear error immediately when user starts editing
-      setSubmitError(null);
+      // setSubmitError(null); // This is now handled by toast
     }
-  }, [budget, maxPrice]);
+  }, [budget, maxPrice, error]);
   /**
    * Convert ETH price to Q96 format, aligned to tickSpacing
    * tickSpacing defines the minimum price increment in Q96 format
@@ -290,14 +295,13 @@ export function MyBid({ activeBids }: MyBidProps) {
 
   const handleSubmitBid = async () => {
     setTxHash("");
-    setShowSuccess(false);
     if (!isConnected || !address) {
-      setSubmitError("Please connect your wallet first");
+      toast.error("Please connect your wallet first");
       return;
     }
 
     if (isLoadingPriceParams || !tickSpacing) {
-      setSubmitError("Loading contract parameters. Please wait...");
+      toast.info("Loading contract parameters. Please wait...");
       return;
     }
 
@@ -305,12 +309,12 @@ export function MyBid({ activeBids }: MyBidProps) {
     const maxPriceNum = parseFloat(maxPrice);
 
     if (!budget || isNaN(budgetNum) || budgetNum <= 0) {
-      setSubmitError("Please enter a valid budget amount");
+      toast.error("Please enter a valid budget amount");
       return;
     }
 
     if (!maxPrice || isNaN(maxPriceNum) || maxPriceNum <= 0) {
-      setSubmitError("Please enter a valid maximum price");
+      toast.error("Please enter a valid maximum price");
       return;
     }
 
@@ -318,29 +322,19 @@ export function MyBid({ activeBids }: MyBidProps) {
     if (floorPrice) {
       const floorPriceEth = Number(floorPrice) / Number(2n ** 96n);
       if (maxPriceNum < floorPriceEth) {
-        setSubmitError(
-          `Price must be at least ${floorPriceEth.toFixed(6)} ETH (floor price)`
-        );
+        toast.error(`Price must be at least ${floorPriceEth.toFixed(6)} ETH (floor price)`);
         return;
       }
     }
 
-    setSubmitError(null);
+    const toastId = toast.loading("Preparing transaction...");
 
     try {
-      // Convert budget to wei (ETH amount) - this is correct
+      // Convert budget to wei (ETH amount)
       const amountInWei = parseEther(budget);
 
       // Convert max price to Q96 format, aligned to tickSpacing
       const maxPriceQ96 = convertPriceToTickSpacing(maxPriceNum);
-
-      console.log("Submitting bid:", {
-        budget: budgetNum,
-        maxPrice: maxPriceNum,
-        amountInWei: amountInWei.toString(),
-        maxPriceQ96: maxPriceQ96.toString(),
-        tickSpacing: tickSpacing.toString(),
-      });
 
       // Submit the bid
       await submitBid(
@@ -350,10 +344,26 @@ export function MyBid({ activeBids }: MyBidProps) {
         "0x00" as const, // Empty hook data
         amountInWei // ETH value to send
       );
+      
+      // Dismiss loading toast (success handled in useEffect)
+      toast.dismiss(toastId);
+      
     } catch (err: any) {
-      console.error("Error submitting bid:", err);
+      console.error("❌ Error in handleSubmitBid catch block:", err);
+      
+      // Force dismissal of the loading toast first
+      toast.dismiss(toastId);
+
+      // Optional: Clear inputs on error/cancellation
+      setBudget("");
+      setMaxPrice("");
+
       const friendlyError = parseError(err);
-      setSubmitError(friendlyError);
+      
+      // Show error toast explicitly
+      toast.error(friendlyError, {
+        duration: 5000, // Keep it visible longer
+      });
     }
   };
 
@@ -434,9 +444,9 @@ export function MyBid({ activeBids }: MyBidProps) {
     // and 2xl:grid-cols-2 to prevent cramping on standard laptops.
     <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4 sm:gap-6">
       <div
-        ref={tiltRef}
+        // ref={tiltRef}
         className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6"
-        style={{ transformStyle: "preserve-3d" }}
+        // style={{ transformStyle: "preserve-3d" }}
       >
         <div className="flex items-center gap-2 mb-4 sm:mb-6">
           <HandCoins
@@ -531,50 +541,12 @@ export function MyBid({ activeBids }: MyBidProps) {
             </div>
           </div>
 
-          {submitError && (
-            <div className="p-3 bg-red-900/20 border border-red-700 rounded-lg text-sm text-red-200">
-              {submitError}
-            </div>
-          )}
-
-          {showSuccess && (
-            <div className="p-3 bg-green-900/20 border border-green-700 rounded-lg text-sm text-green-200">
-              <div className="flex items-center justify-between gap-2">
-                <span>Bid submitted successfully! 🎉</span>
-                {(txHash || hash) && (
-                  <a
-                    href={getEtherscanUrl(txHash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 underline text-xs flex items-center gap-1"
-                  >
-                    View on Etherscan
-                    <svg
-                      className="w-3 h-3"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                      />
-                    </svg>
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
-
           <button
             onClick={handleSubmitBid}
             disabled={
               !isConnected ||
               isPending ||
               isConfirming ||
-              showSuccess ||
               !budget ||
               !maxPrice ||
               isLoadingPriceParams ||
@@ -595,19 +567,16 @@ export function MyBid({ activeBids }: MyBidProps) {
             {isLoadingPriceParams
               ? "Loading..."
               : isPending
-              ? "Preparing transaction..."
+              ? "Check Wallet..."
               : isConfirming
               ? "Confirming..."
-              : showSuccess
-              ? "Bid Submitted!"
               : "Place Bid"}
           </button>
 
-          {/* Handle wagmi error prop - only show if not already shown in submitError */}
-          {error && !submitError && (
-            <div className="p-3 bg-red-900/20 border border-red-700 rounded-lg text-sm text-red-200 mt-2">
-              {parseError(error)}
-            </div>
+          {/* Handle wagmi error prop - only show if not already shown */}
+          {error && (
+             // You can keep this as a fallback or rely on the toast in catch block
+             <div className="hidden">{/* Error handled by toast */}</div>
           )}
         </div>
       </div>

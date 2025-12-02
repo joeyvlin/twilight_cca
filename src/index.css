@@ -1,6 +1,29 @@
+   @import "@fontsource/inter/400.css";
+   @import "@fontsource/roboto-mono/400.css";
+   @import "@fontsource/instrument-serif/400.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Global typography defaults */
+:root {
+  font-family: 'Inter', sans-serif;
+}
+
+@layer base {
+  h1, h2, h3 {
+    @apply font-headline;
+  }
+
+  p, div, span, li {
+    @apply font-body;
+  }
+
+  code, pre, .caption, .tag {
+    @apply font-mono;
+  }
+}
 
 /* Ensure html and body fill viewport and prevent white space */
 html {

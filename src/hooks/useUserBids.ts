@@ -261,56 +261,25 @@ export function useUserBids() {
     // because localStorage is meant to persist data across page refreshes
     // The data will be loaded on next page load
   }, [allBids, address, isValidating]);
-
-  // Listen for new bids
   // Listen for new bids
   useBidSubmittedEvent((logs) => {
-    console.log("🔔 BidSubmitted event received:", logs);
-
-    if (!address) {
-      console.log("⚠️ No address, skipping bid tracking");
-      return;
-    }
+    if (!address) return;
 
     logs.forEach((log: any) => {
       const logOwner = log.args?.owner;
       const logBidId = log.args?.id;
-
-      console.log("📋 Processing log:", {
-        logOwner,
-        userAddress: address,
-        matches: logOwner?.toLowerCase() === address.toLowerCase(),
-        bidId: logBidId?.toString(),
-      });
-
       if (logOwner?.toLowerCase() === address.toLowerCase()) {
         const bidId = logBidId?.toString();
-        console.log("✅ Bid belongs to user! Bid ID:", bidId);
-
         setAllBids((prev) => {
-          // Check if bidId already exists
           const exists = prev.some((bid) => bid.bidId === bidId);
           if (!exists) {
-            console.log("➕ Adding new bid ID:", bidId);
-            const newBid = {
-              bidId,
-              status: "active" as const,
-              lastValidated: Date.now(),
-            };
-            console.log("💾 New bid to add:", newBid);
-            return [...prev, newBid];
-          } else {
-            console.log("⏭️ Bid ID already exists:", bidId);
+            return [
+              ...prev,
+              { bidId, status: "active" as const, lastValidated: Date.now() },
+            ];
           }
           return prev;
         });
-      } else {
-        console.log(
-          "❌ Bid doesn't belong to user. Owner:",
-          logOwner,
-          "User:",
-          address
-        );
       }
     });
   });
@@ -320,18 +289,16 @@ export function useUserBids() {
     if (!address) return;
     logs.forEach((log: any) => {
       const bidId = log.args.bidId.toString();
-      if (process.env.NODE_ENV === "development") {
-        console.log("BidExited event:", { bidId, log });
-      }
-      setAllBids((prev) => {
-        return prev.map((bid) =>
+      setAllBids((prev) =>
+        prev.map((bid) =>
           bid.bidId === bidId
             ? { ...bid, status: "exited" as const, lastValidated: Date.now() }
             : bid
-        );
-      });
+        )
+      );
     });
   });
+
   // Function to manually trigger a reload from localStorage
   const refetch = useCallback(() => {
     setRefreshTrigger((prev) => prev + 1);
@@ -365,7 +332,7 @@ export function useBidData(bidId: bigint | undefined) {
   // Convert contract bid data to display format
   // Convert contract bid data to display format
   const bidData: BidData | null = useMemo(() => {
-    if (!data || !bidId) return null;
+    if (!data || bidId === undefined) return null;
 
     let startBlock: bigint;
     let startCumulativeMps: number;

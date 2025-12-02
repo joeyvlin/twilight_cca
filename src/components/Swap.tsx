@@ -1,5 +1,5 @@
 import { ArrowLeftRight, Circle } from 'lucide-react';
-import { useTilt } from '../hooks/useTilt';
+// import { useTilt } from '../hooks/useTilt';
 import { useThemeClasses } from '../hooks/useThemeClasses';
 
 interface SwapProps {
@@ -18,15 +18,15 @@ export function Swap({
   disabled = false,
 }: SwapProps) {
   const themeClasses = useThemeClasses();
-  const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
+  // const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
   return (
     <div
-      ref={tiltRef}
+      // ref={tiltRef}
       className={`bg-gradient-to-br from-gray-900 to-gray-800 border rounded-lg p-4 sm:p-5 md:p-6 h-full ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
       }`}
       style={{
-        transformStyle: "preserve-3d",
+        // transformStyle: "preserve-3d",
         borderColor: disabled ? "#4a5568" : "#7df9ff",
         boxShadow: disabled
           ? "none"

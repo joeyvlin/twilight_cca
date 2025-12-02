@@ -7,14 +7,15 @@ import { Auction } from './components/Auction';
 import { MyBid } from './components/MyBid';
 import { FAQ } from './components/FAQ';
 import { BitcoinShield } from './components/BitcoinShield';
-import { AnimatedSection } from './components/AnimatedSection';
+// import { AnimatedSection } from './components/AnimatedSection';
 import { TiltCard } from './components/TiltCard';
 import { StateSlider } from './components/StateSlider';
 import { ThemeToggle } from './components/ThemeToggle';
-import Lightning from './components/Lightning';
+// import Lightning from './components/Lightning';
 import { useThemeClasses } from './hooks/useThemeClasses';
-import { useTilt } from './hooks/useTilt';
+// import { useTilt } from './hooks/useTilt';
 import { useWeb3 } from './contexts/Web3Context';
+import { Toaster } from 'sonner';
 import { sepolia } from 'wagmi/chains'; 
 //import { ContractTest } from "./components/ContractTest";
 import { useAuctionCountdown } from "./hooks/useAuctionCountdown";
@@ -23,7 +24,7 @@ import { BLOCK_TIME_MS, AUCTION_CONFIG } from "./config/constants";
 import { blocksToTime, formatPrice, formatClearingPrice } from "./utils/formatting";
 import { useAuctionEndCountdown } from "./hooks/useAuctionEndCountdown";
 import { useBlockEndCountdown } from "./hooks/useBlockEndCountDown";
-
+import { useEthUsdPrice } from "./hooks/useEthUsdPrice";
 const SEPOLIA_RPC_URL =
   import.meta.env.VITE_SEPOLIA_RPC_URL ||
   "https://sepolia.gateway.tenderly.co";
@@ -51,6 +52,7 @@ function App() {
     isCorrectNetwork,
     switchNetwork,
   } = useWeb3();
+  /*
   const navThemeToggleTilt = useTilt<HTMLDivElement>({
     maxTilt: 3,
     scale: 1.02,
@@ -58,6 +60,7 @@ function App() {
   const navLink1Tilt = useTilt<HTMLAnchorElement>({ maxTilt: 3, scale: 1.02 });
   const navLink2Tilt = useTilt<HTMLAnchorElement>({ maxTilt: 3, scale: 1.02 });
   const navButtonTilt = useTilt<HTMLButtonElement>({ maxTilt: 3, scale: 1.02 });
+  */
   const [countdown1, setCountdown1] = useState({
     hours: 2,
     minutes: 15,
@@ -118,6 +121,7 @@ function App() {
     volume24h: 1254000,
   });
 
+  const ethUsdPrice = useEthUsdPrice();
   // My Bid data - to be fetched from data source
   const [myBidData, _setMyBidData] = useState<
     Array<{ id: string; budget: number; maxPrice: number }>
@@ -218,27 +222,27 @@ function App() {
 
 
   // Determine auction state from contract
-  useEffect(() => {
-    if (!contract.startBlock || !contract.endBlock || !contract.currentBlock) {
-      return; // Still loading
-    }
+  // useEffect(() => {
+  //   if (!contract.startBlock || !contract.endBlock || !contract.currentBlock) {
+  //     return; // Still loading
+  //   }
 
-    // Buffer: Keep auction-live for 100 blocks (~20 minutes) after endBlock
-    // Adjust BUFFER_BLOCKS as needed
-    const BUFFER_BLOCKS = 360;
-    const effectiveEndBlock = contract.endBlock + BigInt(BUFFER_BLOCKS);
+  //   // Buffer: Keep auction-live for 100 blocks (~20 minutes) after endBlock
+  //   // Adjust BUFFER_BLOCKS as needed
+  //   const BUFFER_BLOCKS = 360;
+  //   const effectiveEndBlock = contract.endBlock + BigInt(BUFFER_BLOCKS);
 
-    if (contract.currentBlock < contract.startBlock) {
-      setAuctionState("pre-auction");
-    } else if (
-      contract.currentBlock >= contract.startBlock &&
-      contract.currentBlock <= effectiveEndBlock
-    ) {
-      setAuctionState("auction-live");
-    } else {
-      setAuctionState("post-auction");
-    }
-  }, [contract.startBlock, contract.endBlock, contract.currentBlock]);
+  //   if (contract.currentBlock < contract.startBlock) {
+  //     setAuctionState("pre-auction");
+  //   } else if (
+  //     contract.currentBlock >= contract.startBlock &&
+  //     contract.currentBlock <= effectiveEndBlock
+  //   ) {
+  //     setAuctionState("auction-live");
+  //   } else {
+  //     setAuctionState("post-auction");
+  //   }
+  // }, [contract.startBlock, contract.endBlock, contract.currentBlock]);
 
   // Simulate new transactions - increment values periodically
   useEffect(() => {
@@ -278,6 +282,16 @@ function App() {
     contract.totalSupply && contract.totalCleared
       ? (Number(contract.totalCleared) / Number(contract.totalSupply)) * 100
       : 0;
+
+  const clearingPriceEth =
+    contract.clearingPrice && contract.clearingPrice > 0n
+      ? parseFloat(formatClearingPrice(contract.clearingPrice))
+      : null;
+
+  const fdvUsd =
+    clearingPriceEth !== null && ethUsdPrice !== null
+      ? clearingPriceEth * ethUsdPrice * 100_000_000
+      : null;
   // Calculate estimated start date from contract
   const estimatedStartDate =
     contract.startBlock && contract.currentBlock
@@ -293,9 +307,14 @@ function App() {
       : null;
   return (
     // UI Fix: Added flex and flex-col to the wrapper
-    <div className={`min-h-screen flex flex-col ${themeClasses.mainBackground} text-white`}>
+    <div
+      className={`min-h-screen flex flex-col ${themeClasses.mainBackground} text-white`}
+    >
+      {/* Add Toaster component here, customized for dark theme */}
+      <Toaster position="top-right" theme="dark" richColors closeButton />
+
       {/* Lightning Background REMOVED */}
-      
+
       <header
         className={`relative border-b border-gray-800 ${themeClasses.headerBackground} bg-opacity-80 backdrop-blur-sm z-10`}
       >
@@ -331,8 +350,8 @@ function App() {
                 {/* "Token Lightning Sale" text REMOVED */}
               </a>
               <div
-                ref={navThemeToggleTilt}
-                style={{ transformStyle: "preserve-3d" }}
+              // ref={navThemeToggleTilt}
+              // style={{ transformStyle: "preserve-3d" }}
               >
                 <ThemeToggle />
               </div>
@@ -342,7 +361,7 @@ function App() {
             {/* Desktop menu items */}
             <a
               href="/faq"
-              ref={navLink1Tilt}
+              // ref={navLink1Tilt}
               onClick={(e) => {
                 e.preventDefault();
                 setCurrentPage(currentPage === "faq" ? "home" : "faq");
@@ -352,7 +371,7 @@ function App() {
                   ? themeClasses.textAccent
                   : "text-gray-300 hover:text-white"
               }`}
-              style={{ transformStyle: "preserve-3d" }}
+              // style={{ transformStyle: "preserve-3d" }}
             >
               Auction Details
             </a>
@@ -360,15 +379,15 @@ function App() {
               href="https://quasar-8.gitbook.io/twilight-docs"
               target="_blank"
               rel="noopener noreferrer"
-              ref={navLink2Tilt}
+              // ref={navLink2Tilt}
               className="hidden md:block text-gray-300 hover:text-white transition-colors text-sm sm:text-base"
-              style={{ transformStyle: "preserve-3d" }}
+              // style={{ transformStyle: "preserve-3d" }}
             >
               Twilight Docs
             </a>
 
             <button
-              ref={navButtonTilt}
+              // ref={navButtonTilt}
               onClick={async () => {
                 if (isConnected) {
                   disconnect();
@@ -446,7 +465,7 @@ function App() {
                   ? "border-yellow-500 text-yellow-500"
                   : ""
               }`}
-              style={{ transformStyle: "preserve-3d" }}
+              // style={{ transformStyle: "preserve-3d" }}
               title={
                 address && !isCorrectNetwork
                   ? "Please switch to Sepolia network"
@@ -540,14 +559,14 @@ function App() {
               <div className="text-center sm:text-left flex flex-col justify-center pt-0">
                 <h1
                   id="title"
-                  className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 font-sans tracking-tight text-white"
+                  className="font-headline text-3xl sm:text-4xl md:text-5xl font-light mb-2 sm:mb-3 tracking-tight text-white"
                 >
                   {/* TypewriterText REPLACED with styled static text */}
                   <div className="flex flex-col gap-1">
                     <span>Twilight Token Auction</span>
                   </div>
                 </h1>
-                
+
                 {/* Badges REMOVED/DISABLED as requested */}
                 {/* <div className="flex flex-wrap gap-3 text-sm sm:text-base md:text-lg font-medium text-gray-400 mb-3">
                   <span className="px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-full">Zero Margin</span>
@@ -557,7 +576,7 @@ function App() {
 
                 <p
                   id="subtitle"
-                  className="text-lg sm:text-xl md:text-2xl font-light text-gray-300 mt-2"
+                  className="font-body text-lg sm:text-xl md:text-2xl text-gray-300 mt-2"
                 >
                   Untraceable Bitcoin on Privacy DEX
                 </p>
@@ -567,92 +586,137 @@ function App() {
           </div>
 
           <div
-            className={`transition-opacity duration-1000 ease-out ${
-              showContent ? "opacity-100" : "opacity-0"
-            }`}
+            // className={`transition-opacity duration-1000 ease-out ${
+            //   showContent ? "opacity-100" : "opacity-0"
+            // }`}
+            className="opacity-100"
           >
-            <AnimatedSection delay={100} animation="fade-in-up">
+            {/* <AnimatedSection delay={100} animation="fade-in-up"> */}
+            <div>
               {auctionState === "pre-auction" ? (
-                <div className="flex justify-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-                  <div className="w-1/3">
-                    <AnimatedSection delay={0}>
-                      <TiltCard maxTilt={5} scale={1.02}>
-                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                          <div className="flex items-center gap-2 mb-2">
+                // Changed from flex row with w-1/3 to grid with wider columns
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto mb-6 sm:mb-8">
+                  {" "}
+                  <div className="w-full">
+                    {/* <AnimatedSection delay={0}> */}
+                    <div>
+                      {/* <TiltCard maxTilt={5} scale={1.02}> */}
+                      <div className="h-full">
+                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 sm:p-8 h-full cursor-pointer hover:border-blue-500/50 transition-colors">
+                          <div className="flex items-center gap-3 mb-3">
                             <Coins
-                              className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
+                              className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
                             />
-                            <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">
+                            <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
                               Tokens Available
                             </div>
                           </div>
-                          <div className="flex items-baseline gap-2">
+                          <div className="flex flex-col gap-1">
                             <div
-                              className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
+                              className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
                             >
                               {AUCTION_CONFIG.formatTokens(
                                 AUCTION_CONFIG.tokens.available
                               )}
                             </div>
-                            <div className="text-xs sm:text-sm text-gray-500">
+                            <div className="font-body text-sm sm:text-base text-gray-500">
                               {AUCTION_CONFIG.tokens.percentage}% of total
                               supply
                             </div>
                           </div>
                         </div>
-                      </TiltCard>
-                    </AnimatedSection>
+                        {/* </TiltCard> */}
+                      </div>
+                      {/* </AnimatedSection> */}
+                    </div>
                   </div>
-                  <div className="w-1/3">
-                    <AnimatedSection delay={100}>
-                      <TiltCard maxTilt={5} scale={1.02}>
-                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                          <div className="flex items-center gap-2 mb-2">
+                  <div className="w-full">
+                    {/* <AnimatedSection delay={100}> */}
+                    <div>
+                      {/* <TiltCard maxTilt={5} scale={1.02}> */}
+                      <div className="h-full">
+                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 sm:p-8 h-full cursor-pointer hover:border-blue-500/50 transition-colors">
+                          <div className="flex items-center gap-3 mb-3">
                             <Clock
-                              className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
+                              className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
                             />
-                            <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">
+                            <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
                               Auction Length
                             </div>
                           </div>
-                          <div
-                            className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
-                          >
-                            {AUCTION_CONFIG.duration.blocks.toLocaleString()}{" "}
-                            blocks{" "}
-                            <span className="text-xs sm:text-sm text-gray-500">
-                              (
+                          <div className="flex flex-col gap-1">
+                            <div
+                              className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
+                            >
+                              {AUCTION_CONFIG.duration.blocks.toLocaleString()}
+                            </div>
+                            <div className="font-body text-sm sm:text-base text-gray-500">
+                              blocks (
                               {blocksToTime(
                                 BigInt(AUCTION_CONFIG.duration.blocks)
                               )}
                               )
-                            </span>
+                            </div>
                           </div>
-                          <div className="text-xs sm:text-sm text-gray-500 mt-1">
+                          <div className="font-body text-sm sm:text-base text-gray-500 mt-2 pt-2 border-t border-gray-700/50">
                             {AUCTION_CONFIG.formatEpochs(
                               AUCTION_CONFIG.duration.epochs
                             )}
                           </div>
                         </div>
-                      </TiltCard>
-                    </AnimatedSection>
+                        {/* </TiltCard> */}
+                      </div>
+                      {/* </AnimatedSection> */}
+                    </div>
+                  </div>
+                  <div className="w-full">
+                    {/* <AnimatedSection delay={0}> */}
+                    <div>
+                      {/* <TiltCard maxTilt={5} scale={1.02}> */}
+                      <div className="h-full">
+                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 sm:p-8 h-full cursor-pointer hover:border-blue-500/50 transition-colors">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Coins
+                              className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
+                            />
+                            <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
+                              FDV of the token
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <div
+                              className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
+                            >
+                              $50M
+                            </div>
+                            <div className="font-body text-sm sm:text-base text-gray-500">
+                              Fully Diluted Valuation
+                            </div>
+                          </div>
+                        </div>
+                        {/* </TiltCard> */}
+                      </div>
+                      {/* </AnimatedSection> */}
+                    </div>
                   </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                  <AnimatedSection delay={0}>
-                    <TiltCard maxTilt={3} scale={1.01}>
+                  {/* <AnimatedSection delay={0}> */}
+                  <div>
+                    {/* <TiltCard maxTilt={3} scale={1.01}> */}
+                    <div>
                       <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
                         <div className="flex items-center gap-2 mb-2">
                           <HandCoins
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
                           />
-                          <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">
+                          <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
                             Total Bids
                           </div>
                         </div>
                         <div
-                          className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
+                          className={`font-headline text-2xl sm:text-3xl md:text-4xl ${themeClasses.textAccent}`}
                         >
                           {contract.nextBidId !== undefined ? (
                             <AnimatedNumber
@@ -671,45 +735,55 @@ function App() {
                           )}
                         </div>
                       </div>
-                    </TiltCard>
-                  </AnimatedSection>
-                  <AnimatedSection delay={100}>
-                    <TiltCard maxTilt={3} scale={1.01}>
+                      {/* </TiltCard> */}
+                    </div>
+                    {/* </AnimatedSection> */}
+                  </div>
+                  {/* <AnimatedSection delay={100}> */}
+                  <div>
+                    {/* <TiltCard maxTilt={3} scale={1.01}> */}
+                    <div>
                       <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
                         <div className="flex items-center gap-2 mb-2">
                           <UserCheck
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
                           />
-                          <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">
-                            Active Bidders
+                          <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
+                            FDV of the token
                           </div>
                         </div>
                         <div
-                          className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
+                          className={`font-headline text-2xl sm:text-3xl md:text-4xl ${themeClasses.textAccent}`}
                         >
-                          <span className="text-gray-500 italic">
-                            Coming Soon
-                          </span>
+                          {fdvUsd !== null ? (
+                            `$${(fdvUsd / 1_000_000).toFixed(1)}M`
+                          ) : (
+                            <span className="text-gray-500 italic">Calculating...</span>
+                          )}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
-                          Requires indexer
+                          Fully Diluted Valuation at current auction price
                         </div>
                       </div>
-                    </TiltCard>
-                  </AnimatedSection>
-                  <AnimatedSection delay={200}>
-                    <TiltCard maxTilt={3} scale={1.01}>
+                      {/* </TiltCard> */}
+                    </div>
+                    {/* </AnimatedSection> */}
+                  </div>
+                  {/* <AnimatedSection delay={200}> */}
+                  <div>
+                    {/* <TiltCard maxTilt={3} scale={1.01}> */}
+                    <div>
                       <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
                         <div className="flex items-center gap-2 mb-2">
                           <Lock
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
                           />
-                          <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide">
+                          <div className="font-mono text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
                             Currency Raised
                           </div>
                         </div>
                         <div
-                          className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
+                          className={`font-headline text-2xl sm:text-3xl md:text-4xl ${themeClasses.textAccent}`}
                         >
                           {contract.currencyRaised !== undefined ? (
                             <AnimatedNumber
@@ -730,11 +804,14 @@ function App() {
                           )}
                         </div>
                       </div>
-                    </TiltCard>
-                  </AnimatedSection>
+                      {/* </TiltCard> */}
+                    </div>
+                    {/* </AnimatedSection> */}
+                  </div>
                 </div>
               )}
-            </AnimatedSection>
+              {/* </AnimatedSection> */}
+            </div>
           </div>
         </div>
       )}
@@ -747,21 +824,26 @@ function App() {
         ) : (
           <>
             <div
-              className={`transition-opacity duration-1000 ease-out ${
-                showContent ? "opacity-100" : "opacity-0"
-              }`}
+              // className={`transition-opacity duration-1000 ease-out ${
+              //   showContent ? "opacity-100" : "opacity-0"
+              // }`}
+              className="opacity-100"
             >
-              <AnimatedSection delay={200} animation="fade-in-up">
+              {/* <AnimatedSection delay={200} animation="fade-in-up"> */}
+              <div>
                 <div className="flex items-center justify-center sm:justify-start mb-3 sm:mb-4">
                   <StateSlider
                     value={auctionState}
                     onChange={setAuctionState}
                   />
                 </div>
-              </AnimatedSection>
-              <AnimatedSection delay={300} animation="fade-in-up">
+                {/* </AnimatedSection> */}
+              </div>
+              {/* <AnimatedSection delay={300} animation="fade-in-up"> */}
+              <div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 items-stretch">
-                  <AnimatedSection delay={0} animation="fade-in">
+                  {/* <AnimatedSection delay={0} animation="fade-in"> */}
+                  <div>
                     <div className="flex flex-col h-full">
                       {auctionState === "post-auction" ? (
                         <Swap
@@ -785,6 +867,12 @@ function App() {
                                   formatClearingPrice(contract.clearingPrice)
                                 )
                               : 0
+                          }
+                          // Pass floor price from contract (convert from BigInt Q96 to number)
+                          floorPrice={
+                            contract.floorPrice
+                              ? Number(contract.floorPrice) / Number(2n ** 96n)
+                              : undefined
                           }
                           allocatedTokens={
                             contract.totalCleared
@@ -895,8 +983,10 @@ function App() {
                         </div>
                       )}
                     </div>
-                  </AnimatedSection>
-                  <AnimatedSection delay={150} animation="fade-in">
+                    {/* </AnimatedSection> */}
+                  </div>
+                  {/* <AnimatedSection delay={150} animation="fade-in"> */}
+                  <div>
                     <div className="flex flex-col gap-3 sm:gap-4 h-full">
                       {auctionState === "auction-live" && (
                         <MyBid activeBids={myBidData} />
@@ -908,9 +998,11 @@ function App() {
                         estimatedValue={myPositionData.estimatedValue}
                       />
                     </div>
-                  </AnimatedSection>
+                    {/* </AnimatedSection> */}
+                  </div>
                 </div>
-              </AnimatedSection>
+                {/* </AnimatedSection> */}
+              </div>
             </div>
           </>
         )}
