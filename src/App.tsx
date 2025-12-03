@@ -1040,6 +1040,9 @@ function App() {
                                   : 0
                               }
                               allocatedPercentage={allocatedPercentage}
+                              totalBids={displayTotalBids}
+                              activeBidders={uniqueBidders}
+                              isLoadingBidders={isLoadingUniqueBidders}
                             />
                             {auctionState === "auction-live" && (
                               <RecentBids limit={10} />
