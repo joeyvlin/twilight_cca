@@ -155,28 +155,35 @@ export function RecentBids({ limit = 10 }: { limit?: number }) {
         )}
       </div>
 
-      {isLoading ? (
+      {isLoading && bids.length === 0 ? (
         <div className="text-xs sm:text-sm text-gray-500 text-center py-4">
           Loading recent bids...
         </div>
-      ) : error ? (
-        <div className="text-xs sm:text-sm text-red-400 text-center py-4">
-          Error loading bids: {error.message}
+      ) : error && bids.length === 0 ? (
+        <div className="text-xs sm:text-sm text-yellow-400 text-center py-4">
+          Unable to load bids. Retrying...
         </div>
       ) : bids.length === 0 ? (
         <div className="text-xs sm:text-sm text-gray-500 text-center py-4">
           No bids yet
         </div>
       ) : (
-        <div className="space-y-3 sm:space-y-4">
-          {bids.map((bid) => (
-            <RecentBidItem
-              key={bid.id}
-              bid={bid}
-              ethUsdPrice={ethUsdPrice}
-            />
-          ))}
-        </div>
+        <>
+          {error && (
+            <div className="text-xs text-yellow-500 text-center mb-2 px-2">
+              Showing last known data. Refreshing...
+            </div>
+          )}
+          <div className="space-y-3 sm:space-y-4">
+            {bids.map((bid) => (
+              <RecentBidItem
+                key={bid.id}
+                bid={bid}
+                ethUsdPrice={ethUsdPrice}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

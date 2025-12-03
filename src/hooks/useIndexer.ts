@@ -461,11 +461,12 @@ export function useIndexerTotalTokensAllocated(refreshInterval = 30000) {
 /**
  * Hook to get recent bids from all users
  */
-export function useRecentBids(limit: number = 10, refreshInterval = 90000) { // Changed from 30000 to 90000 (90 seconds)
+export function useRecentBids(limit: number = 10, refreshInterval = 90000) {
   const [bids, setBids] = useState<BidSubmitted[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [backoffMultiplier, setBackoffMultiplier] = useState(1);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false); // Track if we've ever loaded successfully
 
   const fetchRecentBids = useCallback(async () => {
     try {
@@ -474,21 +475,30 @@ export function useRecentBids(limit: number = 10, refreshInterval = 90000) { // 
       const recentBids = await getRecentBids(limit);
       setBids(recentBids);
       setBackoffMultiplier(1); // Reset backoff on success
+      setHasLoadedOnce(true); // Mark as successfully loaded
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Failed to fetch recent bids");
-      setError(error);
       
       // If rate limited, increase backoff
       if (error.message.includes("429") || error.message.includes("Too Many Requests")) {
         setBackoffMultiplier((prev) => Math.min(prev * 2, 8)); // Max 8x backoff
         console.warn("Rate limited, backing off recent bids fetch");
+        // Don't set error for rate limits if we have data
+        if (!hasLoadedOnce) {
+          setError(error);
+        }
       } else {
         console.error("Error fetching recent bids from indexer:", err);
+        // Only set error if we've never loaded successfully
+        // This way we keep showing the last successful data
+        if (!hasLoadedOnce) {
+          setError(error);
+        }
       }
     } finally {
       setIsLoading(false);
     }
-  }, [limit]);
+  }, [limit, hasLoadedOnce]);
 
   useEffect(() => {
     fetchRecentBids();
@@ -500,7 +510,7 @@ export function useRecentBids(limit: number = 10, refreshInterval = 90000) { // 
   return {
     bids,
     isLoading,
-    error,
+    error: hasLoadedOnce ? null : error, // Only show error if we've never loaded
     refetch: fetchRecentBids,
   };
 }
