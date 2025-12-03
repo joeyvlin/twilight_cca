@@ -13,6 +13,8 @@ import {
 import { CONTRACT_QUERY_CONFIG, BLOCK_QUERY_CONFIG, BID_QUERY_CONFIG, STATIC_QUERY_CONFIG } from "../config/constants";
 import { validateContractConfig } from "../utils/contractValidation";
 import { Address } from "viem";
+import { useIndexerClearingPrice } from "../hooks/useIndexer";
+import { useIndexerHealth } from "../hooks/useIndexer";
 
 // ============================================
 // TYPES
@@ -145,6 +147,12 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     query: BLOCK_QUERY_CONFIG,
   });
 
+  // Indexer health check
+  const { isHealthy: isIndexerHealthy } = useIndexerHealth();
+  
+  // Since we're using useClearingPriceWithFallback in components, we don't need this here
+  // The ContractContext should rely on StateLens/RPC, not indexer directly
+
   // Validate contract configuration on mount
   const isConfigValid = useMemo(() => {
     return validateContractConfig(
@@ -152,6 +160,12 @@ export function ContractProvider({ children }: { children: ReactNode }) {
       stateLensContractConfig.address
     );
   }, []);
+
+  // Check if StateLens is available (has valid address)
+  const isStateLensAvailable = useMemo(() => {
+    return isConfigValid && 
+           stateLensContractConfig.address !== "0x0000000000000000000000000000000000000000";
+  }, [isConfigValid]);
 
   // Log validation warnings in development
   useEffect(() => {
@@ -174,10 +188,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     args: [auctionContractConfig.address],
     query: {
       ...CONTRACT_QUERY_CONFIG,
-      enabled:
-        isConfigValid &&
-        stateLensContractConfig.address !==
-          "0x0000000000000000000000000000000000000000",
+      enabled: isStateLensAvailable,
     },
   });
 
@@ -198,7 +209,9 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     functionName: "clearingPrice",
     query: {
       ...STATIC_QUERY_CONFIG,
-      enabled: isConfigValid && !auctionState,
+      // Disable RPC when StateLens is available OR indexer is healthy
+      // Only use RPC as last resort when both StateLens and indexer are unavailable
+      enabled: isConfigValid && !isStateLensAvailable && !isIndexerHealthy,
     },
   });
 
@@ -466,7 +479,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
   // ============================================
 
   const isLoading =
-    isLoadingClearingPrice ||
+    (isIndexerHealthy ? isLoadingClearingPrice : isLoadingClearingPrice) ||
     (isLoadingState ? false : isLoadingCurrencyRaised) || // Skip if State Lens is loading
     (isLoadingState ? false : isLoadingTotalCleared) ||
     (isLoadingState ? false : isLoadingGraduated) ||
@@ -582,7 +595,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     // Current block
     currentBlock: currentBlock ? BigInt(currentBlock.toString()) : undefined,
 
-    // Auction state
+    // Auction state - prioritize indexer, fallback to StateLens checkpoint, then RPC
     clearingPrice: clearingPrice as bigint | undefined,
     currencyRaised:
       auctionState?.currencyRaised ?? (currencyRaised as bigint | undefined),

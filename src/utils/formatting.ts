@@ -67,19 +67,8 @@ export function formatCurrency(
 /**
  * Format clearing price (Q96 format) to ETH per token
  */
-export function formatClearingPrice(value: bigint | undefined): string {
-  if (!value || value === 0n) return "0";
-  const divisor = 2n ** 96n;
-  const price = Number(value) / Number(divisor);
-  
-  // Format with appropriate precision based on magnitude
-  if (price >= 1) {
-    return price.toFixed(4);
-  } else if (price >= 0.01) {
-    return price.toFixed(6);
-  } else if (price >= 0.0001) {
-    return price.toFixed(8);
-  } else {
-    return price.toExponential(4);
-  }
+export function formatClearingPrice(priceQ96: bigint): string {
+  const q96Divisor = 2n ** 96n;
+  const priceInWei = priceQ96 / q96Divisor;
+  return formatEther(priceInWei);
 }

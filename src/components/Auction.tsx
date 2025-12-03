@@ -1,6 +1,7 @@
-import { Gavel } from 'lucide-react';
+import { Gavel, HandCoins, Users } from 'lucide-react';
 // import { useTilt } from '../hooks/useTilt';
 import { useThemeClasses } from '../hooks/useThemeClasses';
+import { useClearingPriceWithFallback } from "../hooks/useClearingPriceWithFallback";
 
 interface AuctionProps {
   countdown1: { days: number; hours: number; minutes: number; seconds: number }; 
@@ -20,6 +21,10 @@ interface AuctionProps {
   floorPrice?: number;
   // Add ethUsdPrice prop
   ethUsdPrice?: number | null;
+  // Add Total Bids and Active Bidders props
+  totalBids?: number | string;
+  activeBidders?: number;
+  isLoadingBidders?: boolean;
 }
 
 export function Auction({ 
@@ -35,21 +40,33 @@ export function Auction({
   // Default floor price if not provided
   floorPrice = 0.00001,
   ethUsdPrice = null,
+  totalBids = 0,
+  activeBidders = 0,
+  isLoadingBidders = false,
 }: AuctionProps) {
   const themeClasses = useThemeClasses();
   
-  // Helper to decide what price to show
-  // Use clearing price if > 0, otherwise use floor price
-  const displayPrice = lastClearingPrice > 0 ? lastClearingPrice : floorPrice;
-  const priceLabel = lastClearingPrice > 0 ? "Last Clearing Price" : "Floor Price";
+  // Use the fallback hook - prefers indexer, falls back to RPC
+  const { clearingPriceEth: displayPrice, source } = useClearingPriceWithFallback();
+  
+  // Determine price label based on source and availability
+  const priceLabel = displayPrice && displayPrice > 0 
+    ? "Last Clearing Price" 
+    : (lastClearingPrice > 0 ? "Last Clearing Price" : "Floor Price");
+  
+  // Use displayPrice from hook, fallback to prop if needed
+  const finalDisplayPrice = displayPrice ?? lastClearingPrice ?? floorPrice;
 
-  /*
-  const block1Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
-  const block2Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
-  const block3Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
-  const block4Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
-  const block5Tilt = useTilt({ maxTilt: 6, scale: 1.03 });
-  */
+  // Format countdown for display
+  const formatCountdown = (cd: { days: number; hours: number; minutes: number; seconds: number }) => {
+    if (cd.days === 0 && cd.hours === 0 && cd.minutes === 0 && cd.seconds === 0) {
+      return "00:00:00";
+    }
+    if (cd.days > 0) {
+      return `${cd.days}d ${String(cd.hours).padStart(2, "0")}:${String(cd.minutes).padStart(2, "0")}:${String(cd.seconds).padStart(2, "0")}`;
+    }
+    return formatTime(cd);
+  };
 
   return (
     <div className="h-full rounded-2xl p-[2px] bg-gradient-to-br from-blue-500 to-purple-600">
@@ -69,11 +86,10 @@ export function Auction({
         </div>
 
         <div className="grid grid-cols-2 grid-rows-3 gap-3 sm:gap-4 md:gap-5 flex-1 auto-rows-fr">
+          {/* Current Block */}
           <div
-            // ref={block1Tilt}
             id="current-block"
             className={`border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors flex flex-col items-center justify-center text-center cursor-pointer`}
-            // style={{ transformStyle: "preserve-3d" }}
           >
             <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
               Current Block
@@ -91,26 +107,29 @@ export function Auction({
               )}
             </div>
           </div>
+
+          {/* Last Clearing Price */}
           <div
-            // ref={block2Tilt}
             id="clearing-price"
             className={`border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors flex flex-col items-center justify-center text-center cursor-pointer`}
-            // style={{ transformStyle: "preserve-3d" }}
           >
-            <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
+            <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2 flex items-center gap-1">
               {priceLabel}
+              {source === 'indexer' && (
+                <span className="text-[8px] text-gray-600 opacity-40" title="Data from indexer">●</span>
+              )}
             </div>
             <div
               className={`text-lg sm:text-xl md:text-2xl font-bold ${themeClasses.textAccent}`}
             >
-              {displayPrice > 0 ? (
+              {finalDisplayPrice > 0 ? (
                 <div className="flex flex-col">
-                  <span>{displayPrice.toFixed(6)} ETH</span>
+                  <span>{finalDisplayPrice.toFixed(6)} ETH</span>
                   {ethUsdPrice !== null && ethUsdPrice !== undefined && (
                     <span className="font-body text-xs sm:text-sm text-gray-400 mt-1">
-                      ${(displayPrice * ethUsdPrice >= 1000
-                        ? `${((displayPrice * ethUsdPrice) / 1000).toFixed(2)}K`
-                        : (displayPrice * ethUsdPrice).toFixed(2))}
+                      ${(finalDisplayPrice * ethUsdPrice >= 1000
+                        ? `${((finalDisplayPrice * ethUsdPrice) / 1000).toFixed(2)}K`
+                        : (finalDisplayPrice * ethUsdPrice).toFixed(2))}
                     </span>
                   )}
                 </div>
@@ -119,69 +138,83 @@ export function Auction({
               )}
             </div>
           </div>
+
+          {/* Merged: Block Ends In & Auction Ends In */}
           <div
-            // ref={block3Tilt}
-            id="block-ends"
-            className={`border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors flex flex-col items-center justify-center text-center cursor-pointer`}
-            // style={{ transformStyle: "preserve-3d" }}
+            id="countdowns"
+            className={`col-span-2 border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-3 sm:py-4 md:py-5 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors cursor-pointer`}
           >
-            <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
-              Block Ends In
-            </div>
-            <div
-              className={`text-lg sm:text-xl md:text-2xl font-bold ${themeClasses.textAccent}`}
-            >
-              {countdown1.days === 0 &&
-              countdown1.hours === 0 &&
-              countdown1.minutes === 0 &&
-              countdown1.seconds === 0 ? (
-                <span className="text-gray-500">00:00:00</span>
-              ) : countdown1.days > 0 ? (
-                `${countdown1.days}d ${String(countdown1.hours).padStart(
-                  2,
-                  "0"
-                )}:${String(countdown1.minutes).padStart(2, "0")}:${String(
-                  countdown1.seconds
-                ).padStart(2, "0")}`
-              ) : (
-                formatTime(countdown1)
-              )}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 h-full">
+              <div className="flex flex-col items-center justify-center text-center">
+                <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
+                  Block Ends In
+                </div>
+                <div
+                  className={`text-base sm:text-lg md:text-xl font-bold ${themeClasses.textAccent}`}
+                >
+                  {formatCountdown(countdown1)}
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center text-center border-l border-gray-700">
+                <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
+                  Auction Ends In
+                </div>
+                <div
+                  className={`text-base sm:text-lg md:text-xl font-bold ${themeClasses.textAccent}`}
+                >
+                  {formatCountdown(countdown2)}
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* Total Bids & Active Bidders */}
           <div
-            // ref={block4Tilt}
-            id="auction-ends"
-            className={`border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:p-6 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors flex flex-col items-center justify-center text-center cursor-pointer`}
-            // style={{ transformStyle: "preserve-3d" }}
+            id="bids-bidders"
+            className={`col-span-2 border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-3 sm:py-4 md:py-5 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors cursor-pointer`}
           >
-            <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
-              Auction Ends In
-            </div>
-            <div
-              className={`text-lg sm:text-xl md:text-2xl font-bold ${themeClasses.textAccent}`}
-            >
-              {countdown2.days === 0 &&
-              countdown2.hours === 0 &&
-              countdown2.minutes === 0 &&
-              countdown2.seconds === 0 ? (
-                <span className="text-gray-500">00:00:00</span>
-              ) : countdown2.days > 0 ? (
-                `${countdown2.days}d ${String(countdown2.hours).padStart(
-                  2,
-                  "0"
-                )}:${String(countdown2.minutes).padStart(2, "0")}:${String(
-                  countdown2.seconds
-                ).padStart(2, "0")}`
-              ) : (
-                formatTime(countdown2)
-              )}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 h-full">
+              <div className="flex flex-col items-center justify-center text-center">
+                <div className="flex items-center gap-1.5 mb-1 sm:mb-2">
+                  <HandCoins
+                    className={`w-3 h-3 sm:w-4 sm:h-4 ${themeClasses.textAccent}`}
+                  />
+                  <div className="text-xs sm:text-sm text-gray-400">
+                    Total Bids
+                  </div>
+                </div>
+                <div
+                  className={`text-base sm:text-lg md:text-xl font-bold ${themeClasses.textAccent}`}
+                >
+                  {totalBids}
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center text-center border-l border-gray-700">
+                <div className="flex items-center gap-1.5 mb-1 sm:mb-2">
+                  <Users
+                    className={`w-3 h-3 sm:w-4 sm:h-4 ${themeClasses.textAccent}`}
+                  />
+                  <div className="text-xs sm:text-sm text-gray-400">
+                    Active Bidders
+                  </div>
+                </div>
+                <div
+                  className={`text-base sm:text-lg md:text-xl font-bold ${themeClasses.textAccent}`}
+                >
+                  {isLoadingBidders ? (
+                    <span className="text-gray-500">Loading...</span>
+                  ) : (
+                    activeBidders.toLocaleString()
+                  )}
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* Allocated Tokens */}
           <div
-            // ref={block5Tilt}
             id="tokens-allocated"
             className={`col-span-2 border border-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-gray-800/50 to-transparent ${themeClasses.hoverBorderAccent} transition-colors flex flex-col items-center justify-center text-center cursor-pointer`}
-            // style={{ transformStyle: "preserve-3d" }}
           >
             <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
               Allocated Tokens
