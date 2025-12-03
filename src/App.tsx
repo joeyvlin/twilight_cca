@@ -324,8 +324,8 @@ function App() {
 
   // Replace simulated totalBids with indexer data
   const displayTotalBids = isLoadingTotalBids 
-    ? summaryData.totalBids // Show simulated while loading
-    : (indexerTotalBids ?? summaryData.totalBids); // Use indexer when available
+    ? (summaryData.totalBids || 0) // Show simulated while loading
+    : (indexerTotalBids ?? summaryData.totalBids ?? 0); // Use indexer when available, fallback to simulated, then 0
   
   return (
     // UI Fix: Added flex and flex-col to the wrapper
@@ -375,34 +375,31 @@ function App() {
               // ref={navThemeToggleTilt}
               // style={{ transformStyle: "preserve-3d" }}
               >
-                <ThemeToggle />
+                {/* ThemeToggle DISABLED */}
+                {/* <ThemeToggle /> */}
               </div>
             </div>
           </div>
           <nav className="flex items-center gap-4 sm:gap-8">
-            {/* Desktop menu items */}
-            <a
+            {/* Desktop menu items - DISABLED */}
+            {/* <a
               href="/faq"
-              // ref={navLink1Tilt}
               onClick={(e) => {
                 e.preventDefault();
                 setCurrentPage(currentPage === "faq" ? "home" : "faq");
               }}
               className={`hidden md:block transition-colors text-sm sm:text-base ${themeClasses.textAccent} hover:opacity-80`}
-              // style={{ transformStyle: "preserve-3d" }}
             >
               Auction Details
-            </a>
-            <a
+            </a> */}
+            {/* <a
               href="https://quasar-8.gitbook.io/twilight-docs"
               target="_blank"
               rel="noopener noreferrer"
-              // ref={navLink2Tilt}
               className={`hidden md:block transition-colors text-sm sm:text-base ${themeClasses.textAccent} hover:opacity-80`}
-              // style={{ transformStyle: "preserve-3d" }}
             >
               Twilight Docs
-            </a>
+            </a> */}
 
             <button
               // ref={navButtonTilt}
@@ -509,42 +506,16 @@ function App() {
           </nav>
         </div>
 
-        {/* Mobile menu dropdown - Push content down */}
-        {mobileMenuOpen && (
+        {/* Mobile menu dropdown - DISABLED (no links to show) */}
+        {/* {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-800 bg-gray-900 shadow-xl">
             <div className="px-4 sm:px-6 py-4">
               <div className="flex flex-col gap-2">
-                <a
-                  href="/faq"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(currentPage === "faq" ? "home" : "faq");
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`transition-colors text-base font-medium py-2.5 px-4 rounded-lg ${
-                    currentPage === "faq"
-                      ? `${themeClasses.textAccent} ${themeClasses.bgAccent} bg-opacity-20`
-                      : "text-gray-300 hover:text-white hover:bg-gray-800"
-                  }`}
-                >
-                  Auction Details
-                </a>
-                <a
-                  href="https://quasar-8.gitbook.io/twilight-docs"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${themeClasses.textAccent} hover:opacity-80 transition-colors text-base font-medium py-2.5 px-4 rounded-lg hover:bg-gray-800`}
-                  onClick={() => {
-                    // Let the link work normally, just close menu
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  Twilight Docs
-                </a>
+                Links disabled
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </header>
 
       {/* AnnouncementBanner REMOVED */}
@@ -617,7 +588,7 @@ function App() {
             {/* <AnimatedSection delay={100} animation="fade-in-up"> */}
             <div>
               {auctionState === "pre-auction" ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8 max-w-6xl mx-auto mb-8 sm:mb-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 lg:gap-8 max-w-6xl mx-auto mb-8 sm:mb-10">
                   {" "}
                   <div className="w-full">
                     {/* <AnimatedSection delay={0}> */}
@@ -691,36 +662,7 @@ function App() {
                       {/* </AnimatedSection> */}
                     </div>
                   </div>
-                  <div className="w-full">
-                    {/* <AnimatedSection delay={0}> */}
-                    <div>
-                      {/* <TiltCard maxTilt={5} scale={1.02}> */}
-                      <div className="h-full">
-                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 sm:p-8 h-full cursor-pointer hover:border-blue-500/50 transition-colors">
-                          <div className="flex items-center gap-3 mb-3">
-                            <Coins
-                              className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
-                            />
-                            <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
-                              Token FDV
-                            </div>
-                          </div>
-                          <div className="flex flex-col gap-1">
-                            <div
-                              className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
-                            >
-                              $50 Million
-                            </div>
-                            <div className="font-body text-sm sm:text-base text-gray-500">
-                              Fully Diluted Valuation
-                            </div>
-                          </div>
-                        </div>
-                        {/* </TiltCard> */}
-                      </div>
-                      {/* </AnimatedSection> */}
-                    </div>
-                  </div>
+                  {/* Token FDV card DISABLED */}
                 </div>
               ) : (
                 <div className="mb-6 sm:mb-8 max-w-7xl mx-auto">
@@ -818,7 +760,7 @@ function App() {
                         >
                           {isLoadingTotalBidsAmount ? (
                             <span className="text-gray-500">Loading...</span>
-                          ) : totalBidsAmount !== undefined && totalBidsAmount > 0n ? (
+                          ) : totalBidsAmount !== undefined && totalBidsAmount !== null && totalBidsAmount > 0n ? (
                             (() => {
                               const value = Number(totalBidsAmount) / 1e18;
                               const usdValue = ethUsdPrice

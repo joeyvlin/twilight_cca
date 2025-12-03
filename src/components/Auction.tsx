@@ -186,7 +186,11 @@ export function Auction({
                 <div
                   className={`text-base sm:text-lg md:text-xl font-bold ${themeClasses.textAccent}`}
                 >
-                  {totalBids}
+                  {totalBids !== undefined && totalBids !== null ? (
+                    typeof totalBids === 'number' ? totalBids.toLocaleString() : totalBids
+                  ) : (
+                    <span className="text-gray-500">Loading...</span>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col items-center justify-center text-center border-l border-gray-700">
@@ -203,8 +207,10 @@ export function Auction({
                 >
                   {isLoadingBidders ? (
                     <span className="text-gray-500">Loading...</span>
-                  ) : (
+                  ) : activeBidders !== undefined && activeBidders !== null ? (
                     activeBidders.toLocaleString()
+                  ) : (
+                    <span className="text-gray-500">0</span>
                   )}
                 </div>
               </div>

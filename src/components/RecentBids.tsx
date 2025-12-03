@@ -105,12 +105,19 @@ export function RecentBids({ limit = 10 }: { limit?: number }) {
   // Poll checkpoint more frequently (15 seconds) to detect new bids quickly
   const { checkpoint } = useIndexerLatestCheckpoint(15000); // 15 seconds polling
   const previousBlockNumberRef = useRef<string | null>(null);
+  const hasInitializedRef = useRef(false);
+
+  // Initial fetch on mount
+  useEffect(() => {
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+      refetch();
+    }
+  }, [refetch]);
 
   // Listen for custom event to trigger refetch (when current user submits bid)
-  // This provides immediate feedback without waiting for checkpoint polling
   useEffect(() => {
     const handleBidSubmitted = () => {
-      // Wait a bit for indexer to catch up, then refetch
       setTimeout(() => {
         refetch();
       }, 3000);
@@ -125,16 +132,13 @@ export function RecentBids({ limit = 10 }: { limit?: number }) {
     if (checkpoint && checkpoint.blockNumber) {
       const currentBlockNumber = checkpoint.blockNumber;
       
-      // If block number changed, it means a new checkpoint (new bid) occurred
       if (previousBlockNumberRef.current !== null && 
           previousBlockNumberRef.current !== currentBlockNumber) {
-        // New checkpoint detected - trigger refetch after short delay for indexer to process
         setTimeout(() => {
           refetch();
-        }, 2000); // 2 seconds delay for indexer to process the bid
+        }, 2000);
       }
       
-      // Update the ref for next comparison
       previousBlockNumberRef.current = currentBlockNumber;
     }
   }, [checkpoint, refetch]);
