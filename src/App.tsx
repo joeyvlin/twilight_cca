@@ -724,46 +724,8 @@ function App() {
                 </div>
               ) : (
                 <div className="mb-6 sm:mb-8 max-w-7xl mx-auto">
-                  {/* All Metrics - 4 equal cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-                    {/* Total Bids & Active Bidders - Merged Card */}
-                    <div>
-                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 h-full cursor-pointer hover:border-opacity-60 transition-colors">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <HandCoins
-                            className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
-                          />
-                          <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
-                            Total Bids
-                          </div>
-                        </div>
-                        <div
-                          className={`font-headline text-2xl sm:text-3xl md:text-4xl ${themeClasses.textAccent} mb-2`}
-                        >
-                          {displayTotalBids}
-                        </div>
-                        <div className="pt-2 border-t border-gray-700">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Users
-                              className={`w-3 h-3 sm:w-4 sm:h-4 ${themeClasses.textAccent}`}
-                            />
-                            <div className="font-monoDisplay text-xs text-gray-400 uppercase tracking-[0.2em]">
-                              Active Bidders
-                            </div>
-                          </div>
-                          <div
-                            className={`font-headline text-xl sm:text-2xl md:text-3xl ${themeClasses.textAccent}`}
-                          >
-                            {isLoadingUniqueBidders ? (
-                              <span className="text-gray-500">Loading...</span>
-                            ) : (
-                              uniqueBidders.toLocaleString()
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
+                  {/* All Metrics - 3 equal cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                     {/* Token FDV */}
                     <div>
                       <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-5 sm:p-6 h-full cursor-pointer hover:border-opacity-60 transition-colors">
