@@ -466,7 +466,8 @@ export function useRecentBids(limit: number = 10, refreshInterval = 90000) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [backoffMultiplier, setBackoffMultiplier] = useState(1);
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false); // Track if we've ever loaded successfully
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [retryCount, setRetryCount] = useState(0); // Track retry attempts
 
   const fetchRecentBids = useCallback(async () => {
     try {
@@ -476,29 +477,34 @@ export function useRecentBids(limit: number = 10, refreshInterval = 90000) {
       setBids(recentBids);
       setBackoffMultiplier(1); // Reset backoff on success
       setHasLoadedOnce(true); // Mark as successfully loaded
+      setRetryCount(0); // Reset retry count on success
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Failed to fetch recent bids");
       
+      // Increment retry count
+      setRetryCount((prev) => prev + 1);
+      
       // If rate limited, increase backoff
       if (error.message.includes("429") || error.message.includes("Too Many Requests")) {
-        setBackoffMultiplier((prev) => Math.min(prev * 2, 8)); // Max 8x backoff
+        setBackoffMultiplier((prev) => Math.min(prev * 2, 8));
         console.warn("Rate limited, backing off recent bids fetch");
         // Don't set error for rate limits if we have data
-        if (!hasLoadedOnce) {
+        if (!hasLoadedOnce && retryCount >= 2) {
+          // Only show error after 2 retry attempts
           setError(error);
         }
       } else {
         console.error("Error fetching recent bids from indexer:", err);
-        // Only set error if we've never loaded successfully
-        // This way we keep showing the last successful data
-        if (!hasLoadedOnce) {
+        // Only set error if we've never loaded successfully AND retried at least twice
+        // This prevents showing errors on transient network issues
+        if (!hasLoadedOnce && retryCount >= 2) {
           setError(error);
         }
       }
     } finally {
       setIsLoading(false);
     }
-  }, [limit, hasLoadedOnce]);
+  }, [limit, hasLoadedOnce, retryCount]);
 
   useEffect(() => {
     fetchRecentBids();

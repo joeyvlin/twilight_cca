@@ -164,8 +164,8 @@ export function RecentBids({ limit = 10 }: { limit?: number }) {
           Loading recent bids...
         </div>
       ) : error && bids.length === 0 ? (
-        <div className="text-xs sm:text-sm text-yellow-400 text-center py-4">
-          Unable to load bids. Retrying...
+        <div className="text-xs sm:text-sm text-gray-400 text-center py-4">
+          Loading bids... Please wait
         </div>
       ) : bids.length === 0 ? (
         <div className="text-xs sm:text-sm text-gray-500 text-center py-4">

@@ -849,14 +849,17 @@ function App() {
                         <div className="bg-gray-900 rounded-2xl p-8 sm:p-10 md:p-12 h-full flex items-center justify-center">
                           <div className="text-center w-full">
                             <h2 className="text-xl sm:text-2xl md:text-3xl font-normal font-body text-gray-300 mb-6 sm:mb-8">
-                              Auction Starts In
+                              {isBeforeStart 
+                                ? "Auction Starts In" 
+                                : "Auction is Live now"}
                             </h2>
 
                             {/* Countdown Timer */}
-                            <div className="flex justify-center gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+                            <div className="flex justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8 mb-4 sm:mb-6">
+                              {/* Timer remains the same */}
                               <div className="flex flex-col items-center">
                                 <div
-                                  className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold ${themeClasses.textAccent}`}
+                                  className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold ${themeClasses.textAccent}`}
                                 >
                                   {String(timeUntilAuction.days).padStart(
                                     2,
@@ -867,12 +870,12 @@ function App() {
                                   Days
                                 </div>
                               </div>
-                              <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-600 self-center">
+                              <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-gray-600 self-center">
                                 :
                               </div>
                               <div className="flex flex-col items-center">
                                 <div
-                                  className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold ${themeClasses.textAccent}`}
+                                  className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold ${themeClasses.textAccent}`}
                                 >
                                   {String(timeUntilAuction.hours).padStart(
                                     2,
@@ -883,12 +886,12 @@ function App() {
                                   Hours
                                 </div>
                               </div>
-                              <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-600 self-center">
+                              <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-gray-600 self-center">
                                 :
                               </div>
                               <div className="flex flex-col items-center">
                                 <div
-                                  className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold ${themeClasses.textAccent}`}
+                                  className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold ${themeClasses.textAccent}`}
                                 >
                                   {String(timeUntilAuction.minutes).padStart(
                                     2,
@@ -899,12 +902,12 @@ function App() {
                                   Mins
                                 </div>
                               </div>
-                              <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-600 self-center">
+                              <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-gray-600 self-center">
                                 :
                               </div>
                               <div className="flex flex-col items-center">
                                 <div
-                                  className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold ${themeClasses.textAccent}`}
+                                  className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold ${themeClasses.textAccent}`}
                                 >
                                   {String(timeUntilAuction.seconds).padStart(
                                     2,
@@ -917,10 +920,8 @@ function App() {
                               </div>
                             </div>
 
-                            <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-3 sm:mb-4">
-                              Get ready to participate in the Twilight Token
-                              Auction
-                            </p>
+                            {/* Removed "Get ready to participate..." text */}
+                            
                             <p
                               className={`text-base sm:text-lg md:text-xl ${themeClasses.textAccent} font-medium`}
                             >
