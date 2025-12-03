@@ -9,6 +9,8 @@ import { useUserBids, useBidData } from "../hooks/useUserBids";
 import { parseEther } from "viem";
 import { toast } from "sonner";
 import { useEthUsdPrice } from "../hooks/useEthUsdPrice";
+import { formatEther } from "viem";
+import { useClearingPriceWithFallback } from "../hooks/useClearingPriceWithFallback";
 
 
 interface MyBidProps {
@@ -88,21 +90,9 @@ function getEtherscanUrl(txHash: string): string {
 }
 
 // Component to fetch and display a single bid
-function BidItem({ bidId, ethUsdPrice }: { bidId: bigint; ethUsdPrice?: number | null }) {
+function BidItem({ bidId, ethUsdPrice, skipExitCheck }: { bidId: bigint; ethUsdPrice?: number | null; skipExitCheck?: boolean }) {
   const themeClasses = useThemeClasses();
-  const { bidData, isLoading, error } = useBidData(bidId);
-
-  // Debug logging
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("BidItem Debug:", {
-        bidId: bidId.toString(),
-        isLoading,
-        error: error?.message,
-        bidData,
-      });
-    }
-  }, [bidId, isLoading, error, bidData]);
+  const { bidData, isLoading, error } = useBidData(bidId, skipExitCheck);
 
   if (isLoading) {
     return (
@@ -133,50 +123,63 @@ function BidItem({ bidId, ethUsdPrice }: { bidId: bigint; ethUsdPrice?: number |
   }
 
   return (
-    <div className="flex justify-between items-center gap-4 pb-3 border-b border-gray-700 last:border-0 last:pb-0">
-      <div>
-        <label className="text-xs sm:text-sm text-gray-400 mb-1 block">
-          Bid Amount (ETH)
-        </label>
-        <div className="text-sm sm:text-base font-semibold">
-          {bidData.budget.toFixed(4)} 
-        </div>
-        {ethUsdPrice !== null && ethUsdPrice !== undefined && (
-          <div className="text-xs text-gray-400 mt-0.5">
-            ≈ ${(bidData.budget * ethUsdPrice).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            })}
+    <div className="flex flex-col gap-3 pb-3 border-b border-gray-700 last:border-0 last:pb-0">
+      {/* Top row: Bid Amount and Max Price */}
+      <div className="flex justify-between items-start gap-4">
+        <div>
+          <label className="text-xs sm:text-sm text-gray-400 mb-1 block font-monoDisplay">
+            Bid Amount (ETH)
+          </label>
+          <div className="text-sm sm:text-base font-semibold">
+            {bidData.budget.toFixed(4)} 
           </div>
-        )}
-      </div>
-      <div>
-        <label className="text-xs sm:text-sm text-gray-400 mb-1 block">
-          Max. Price (ETH)
-        </label>
-        <div className="text-sm sm:text-base font-semibold">
-          {bidData.maxPrice.toFixed(6)} 
+          {ethUsdPrice !== null && ethUsdPrice !== undefined && (
+            <div className="text-xs text-gray-400 mt-0.5">
+              ≈ ${(bidData.budget * ethUsdPrice).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </div>
+          )}
         </div>
-        {ethUsdPrice !== null && ethUsdPrice !== undefined && (
-          <div className="text-xs text-gray-400 mt-0.5">
-            ≈ ${(bidData.maxPrice * ethUsdPrice).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            })}
+        <div>
+          <label className="text-xs sm:text-sm text-gray-400 mb-1 block font-monoDisplay">
+            Max. Price (ETH)
+          </label>
+          <div className="text-sm sm:text-base font-semibold">
+            {bidData.maxPrice.toFixed(6)} 
           </div>
-        )}
+          {ethUsdPrice !== null && ethUsdPrice !== undefined && (
+            <div className="text-xs text-gray-400 mt-0.5">
+              ≈ ${(bidData.maxPrice * ethUsdPrice).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Bottom row: Tokens Allocated (if any) */}
+      {bidData.tokensFilled > 0n && (
+        <div className="pt-2 border-t border-gray-700">
+          <label className="text-xs sm:text-sm text-gray-400 mb-1 block font-monoDisplay">
+            Tokens Allocated
+          </label>
+          <div className={`text-sm sm:text-base font-semibold ${themeClasses.textAccent}`}>
+            {formatEther(bidData.tokensFilled)} tokens
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function ActiveBids({ bidIds }: { bidIds: bigint[] }) {
+function ActiveBids({ bidIds, source, skipExitCheck }: { bidIds: bigint[]; source?: string; skipExitCheck?: boolean }) {
   const themeClasses = useThemeClasses();
-  // const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
   const { address, isConnected } = useWeb3();
   const ethUsdPrice = useEthUsdPrice();
-  // const { bidIds } = useUserBids();
-
+  
   return (
     <div
       // ref={tiltRef}
@@ -193,6 +196,10 @@ function ActiveBids({ bidIds }: { bidIds: bigint[] }) {
             ({bidIds.length})
           </span>
         )}
+        {/* Add source indicator */}
+        {source === 'indexer' && (
+          <span className="text-[8px] text-gray-600 opacity-40" title="Data from indexer">●</span>
+        )}
       </div>
 
       {!isConnected || !address ? (
@@ -206,7 +213,7 @@ function ActiveBids({ bidIds }: { bidIds: bigint[] }) {
       ) : (
         <div className="space-y-3 sm:space-y-4">
           {bidIds.map((bidId) => (
-            <BidItem key={bidId.toString()} bidId={bidId} ethUsdPrice={ethUsdPrice} />
+            <BidItem key={bidId.toString()} bidId={bidId} ethUsdPrice={ethUsdPrice} skipExitCheck={skipExitCheck} />
           ))}
         </div>
       )}
@@ -214,7 +221,7 @@ function ActiveBids({ bidIds }: { bidIds: bigint[] }) {
   );
 }
 
-export function MyBid({ activeBids }: MyBidProps) {
+export function MyBid({ activeBids: _activeBids }: MyBidProps) {
   const themeClasses = useThemeClasses();
   // const tiltRef = useTilt({ maxTilt: 5, scale: 1.02 });
   const { address, isConnected } = useWeb3();
@@ -222,12 +229,13 @@ export function MyBid({ activeBids }: MyBidProps) {
     useContract();
   const { submitBid, isPending, isConfirming, isSuccess, error, hash } =
     useSubmitBid();
-  const { bidIds, refetch: refetchBids } = useUserBids();
+  const { bidIds, refetch: refetchBids, source, skipExitCheck } = useUserBids();
   const ethUsdPrice = useEthUsdPrice();
+  const { clearingPriceEth } = useClearingPriceWithFallback();
 
   const [budget, setBudget] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [txHash, setTxHash] = useState<string>("");
+  const [_txHash, setTxHash] = useState<string>("");
   
   // Handle success state
   useEffect(() => {
@@ -451,11 +459,109 @@ export function MyBid({ activeBids }: MyBidProps) {
           console.log("⚠️ nextBidId not available yet, will retry...");
           // Could add retry logic here if needed
         }
+        // Trigger RecentBids refetch via custom event
+        window.dispatchEvent(new CustomEvent("bidSubmitted"));
       }
     };
 
     addBidFromNextBidId();
   }, [isSuccess, address, nextBidId]);
+
+  /**
+   * Handle budget input change with validation
+   */
+  const handleBudgetChange = (value: string) => {
+    // Allow empty string for clearing
+    if (value === "") {
+      setBudget("");
+      return;
+    }
+
+    // Reject if contains any minus signs or other invalid characters
+    if (value.includes("-") || value.includes("+") || value.includes("e") || value.includes("E")) {
+      return; // Don't update if contains invalid characters
+    }
+
+    // Allow only numbers and single decimal point
+    const numericValue = value.replace(/[^0-9.]/g, "");
+    
+    // Prevent multiple decimal points
+    const parts = numericValue.split(".");
+    if (parts.length > 2) {
+      return; // Don't update if multiple decimal points
+    }
+
+    // Ensure the sanitized value matches what user typed (prevents "1--" becoming "1")
+    if (numericValue !== value.replace(/[^0-9.-]/g, "").replace(/-/g, "")) {
+      return; // Reject if original had invalid characters
+    }
+
+    // Parse and check if negative (shouldn't happen now, but double-check)
+    const numValue = parseFloat(numericValue);
+    if (isNaN(numValue) || numValue < 0) {
+      return; // Don't allow invalid or negative numbers
+    }
+
+    setBudget(numericValue);
+  };
+
+  /**
+   * Handle max price input change with validation
+   */
+  const handleMaxPriceChange = (value: string) => {
+    // Allow empty string for clearing
+    if (value === "") {
+      setMaxPrice("");
+      return;
+    }
+
+    // Reject if contains any minus signs or other invalid characters
+    if (value.includes("-") || value.includes("+") || value.includes("e") || value.includes("E")) {
+      return; // Don't update if contains invalid characters
+    }
+
+    // Allow only numbers and single decimal point
+    const numericValue = value.replace(/[^0-9.]/g, "");
+    
+    // Prevent multiple decimal points
+    const parts = numericValue.split(".");
+    if (parts.length > 2) {
+      return; // Don't update if multiple decimal points
+    }
+
+    // Ensure the sanitized value matches what user typed (prevents "1--" becoming "1")
+    if (numericValue !== value.replace(/[^0-9.-]/g, "").replace(/-/g, "")) {
+      return; // Reject if original had invalid characters
+    }
+
+    // Parse and validate
+    const numValue = parseFloat(numericValue);
+    
+    // Don't allow invalid or negative numbers
+    if (isNaN(numValue) || numValue < 0) {
+      return;
+    }
+
+    // Get minimum allowed price (clearing price or floor price)
+    let minPrice: number | null = null;
+    
+    if (clearingPriceEth !== null && clearingPriceEth > 0) {
+      minPrice = clearingPriceEth;
+    } else if (floorPrice) {
+      minPrice = Number(floorPrice) / Number(2n ** 96n);
+    }
+
+    // If we have a minimum price and user entered value below it, don't update
+    if (minPrice !== null && numValue > 0 && numValue < minPrice) {
+      // Show error toast
+      toast.error(`Price must be at least ${minPrice.toFixed(6)} ETH`, {
+        duration: 3000,
+      });
+      return; // Don't update the input
+    }
+
+    setMaxPrice(numericValue);
+  };
 
   return (
     // UI Improvement: Changed lg:grid-cols-2 to xl:grid-cols-1 (stacking) 
@@ -500,7 +606,13 @@ export function MyBid({ activeBids }: MyBidProps) {
                 min="0"
                 placeholder="0.0"
                 value={budget}
-                onChange={(e) => setBudget(e.target.value)}
+                onChange={(e) => handleBudgetChange(e.target.value)}
+                onKeyDown={(e) => {
+                  // Prevent minus, plus, and 'e'/'E' keys
+                  if (e.key === "-" || e.key === "+" || e.key === "e" || e.key === "E") {
+                    e.preventDefault();
+                  }
+                }}
                 disabled={
                   !isConnected ||
                   isPending ||
@@ -532,12 +644,15 @@ export function MyBid({ activeBids }: MyBidProps) {
             <label className="font-monoDisplay text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2 block">
               Maximum Price Limit (ETH per token)
             </label>
-            {floorPrice != null && floorPrice > 0n && (
+            {clearingPriceEth !== null && clearingPriceEth > 0 ? (
               <div className="text-xs text-gray-500 mb-1">
-                Floor price:{" "}
-                {(Number(floorPrice) / Number(2n ** 96n)).toFixed(6)} ETH
+                Current clearing price: {clearingPriceEth.toFixed(6)} ETH (minimum required)
               </div>
-            )}
+            ) : floorPrice != null && floorPrice > 0n ? (
+              <div className="text-xs text-gray-500 mb-1">
+                Floor price: {(Number(floorPrice) / Number(2n ** 96n)).toFixed(6)} ETH (minimum required)
+              </div>
+            ) : null}
             <div className="relative">
               <span className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm sm:text-base">
                 Ξ
@@ -545,10 +660,20 @@ export function MyBid({ activeBids }: MyBidProps) {
               <input
                 type="number"
                 step="0.000001"
-                min="0"
+                min={clearingPriceEth !== null && clearingPriceEth > 0 
+                  ? clearingPriceEth.toFixed(6) 
+                  : floorPrice 
+                    ? (Number(floorPrice) / Number(2n ** 96n)).toFixed(6)
+                    : "0"}
                 placeholder="0.0"
                 value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
+                onChange={(e) => handleMaxPriceChange(e.target.value)}
+                onKeyDown={(e) => {
+                  // Prevent minus, plus, and 'e'/'E' keys
+                  if (e.key === "-" || e.key === "+" || e.key === "e" || e.key === "E") {
+                    e.preventDefault();
+                  }
+                }}
                 disabled={
                   !isConnected ||
                   isPending ||
@@ -615,7 +740,7 @@ export function MyBid({ activeBids }: MyBidProps) {
         </div>
       </div>
 
-      <ActiveBids bidIds={bidIds} />
+      <ActiveBids bidIds={bidIds} source={source} skipExitCheck={skipExitCheck} />
     </div>
   );
 }

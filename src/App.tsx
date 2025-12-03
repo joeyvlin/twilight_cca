@@ -1,4 +1,4 @@
-import { Wallet, HandCoins, UserCheck, Lock, Coins, Clock, Menu, X } from 'lucide-react';
+import { Wallet, HandCoins, UserCheck, Lock, Coins, Clock, Menu, X, DollarSign, Users } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { AnimatedNumber } from './components/AnimatedNumber';
 import { Swap } from './components/Swap';
@@ -25,6 +25,21 @@ import { blocksToTime, formatPrice, formatClearingPrice } from "./utils/formatti
 import { useAuctionEndCountdown } from "./hooks/useAuctionEndCountdown";
 import { useBlockEndCountdown } from "./hooks/useBlockEndCountDown";
 import { useEthUsdPrice } from "./hooks/useEthUsdPrice";
+import { IndexerTest } from "./components/IndexTest";
+import { useIndexerHealth } from "./hooks/useIndexer";
+import { useIndexerTotalBids } from "./hooks/useIndexer";
+import { useIndexerTotalBidsAmount } from "./hooks/useIndexer";
+import { useClearingPriceWithFallback } from "./hooks/useClearingPriceWithFallback";
+import { RecentBids } from "./components/RecentBids";
+import { getUniqueBiddersCount } from "../services/indexer";
+import { useIndexerUniqueBidders } from "./hooks/useIndexer";
+import { Briefcase } from 'lucide-react';
+// import { useTilt } from '../hooks/useTilt';
+import { useAccount } from "wagmi";
+import { useIndexerUserTokenAllocations } from "../hooks/useIndexer";
+import { formatEther } from "viem";
+import { useMemo } from "react";
+
 const SEPOLIA_RPC_URL =
   import.meta.env.VITE_SEPOLIA_RPC_URL ||
   "https://sepolia.gateway.tenderly.co";
@@ -97,11 +112,10 @@ function App() {
   });
 
   // My Position data - to be fetched from data source
-  const [myPositionData, _setMyPositionData] = useState({
+  const myPositionData = {
     tokenBalance: 25.4,
     averageEntryPrice: 562.89,
-    estimatedValue: 14297.41,
-  });
+  };
 
   // Auction data - to be fetched from data source
   const [auctionData, _setAuctionData] = useState({
@@ -112,7 +126,6 @@ function App() {
     totalTokens: 5000000,
     allocatedPercentage: 50,
   });
-
   // Swap data - to be fetched from data source
   const [swapData, _setSwapData] = useState({
     poolDepth: 8542000,
@@ -177,7 +190,7 @@ function App() {
       setShowContent(true);
       // Ensure title is visible immediately or shortly after mount
       setTitleComplete(true);
-    }, 100); 
+    }, 100);
 
     return () => clearTimeout(contentTimer);
   }, []);
@@ -219,7 +232,6 @@ function App() {
   const { countdown: timeUntilAuctionEnd } = useAuctionEndCountdown();
 
   const { countdown: timeUntilBlockEnd } = useBlockEndCountdown();
-
 
   // Determine auction state from contract
   // useEffect(() => {
@@ -283,15 +295,19 @@ function App() {
       ? (Number(contract.totalCleared) / Number(contract.totalSupply)) * 100
       : 0;
 
-  const clearingPriceEth =
-    contract.clearingPrice && contract.clearingPrice > 0n
-      ? parseFloat(formatClearingPrice(contract.clearingPrice))
+  // Indexer hooks - get clearing price from hook (indexer preferred, RPC fallback)
+  const { totalBids: indexerTotalBids, isLoading: isLoadingTotalBids } = useIndexerTotalBids(180000); // 3 minutes
+  const { isHealthy: isIndexerHealthy } = useIndexerHealth();
+  const { clearingPriceEth: indexerClearingPriceEth, source: clearingPriceSource } = useClearingPriceWithFallback();
+  const { totalBidsAmount, isLoading: isLoadingTotalBidsAmount } = useIndexerTotalBidsAmount(180000); // 3 minutes
+  const { uniqueBidders, isLoading: isLoadingUniqueBidders } = useIndexerUniqueBidders(180000); // 3 minutes
+
+  // Use clearing price from hook for FDV calculation
+  const fdvUsd =
+    indexerClearingPriceEth !== null && ethUsdPrice !== null
+      ? indexerClearingPriceEth * ethUsdPrice * 100_000_000
       : null;
 
-  const fdvUsd =
-    clearingPriceEth !== null && ethUsdPrice !== null
-      ? clearingPriceEth * ethUsdPrice * 100_000_000
-      : null;
   // Calculate estimated start date from contract
   const estimatedStartDate =
     contract.startBlock && contract.currentBlock
@@ -305,6 +321,12 @@ function App() {
           return new Date(Date.now() + millisecondsUntilStart);
         })()
       : null;
+
+  // Replace simulated totalBids with indexer data
+  const displayTotalBids = isLoadingTotalBids 
+    ? (summaryData.totalBids || 0) // Show simulated while loading
+    : (indexerTotalBids ?? summaryData.totalBids ?? 0); // Use indexer when available, fallback to simulated, then 0
+  
   return (
     // UI Fix: Added flex and flex-col to the wrapper
     <div
@@ -353,34 +375,31 @@ function App() {
               // ref={navThemeToggleTilt}
               // style={{ transformStyle: "preserve-3d" }}
               >
-                <ThemeToggle />
+                {/* ThemeToggle DISABLED */}
+                {/* <ThemeToggle /> */}
               </div>
             </div>
           </div>
           <nav className="flex items-center gap-4 sm:gap-8">
-            {/* Desktop menu items */}
-            <a
+            {/* Desktop menu items - DISABLED */}
+            {/* <a
               href="/faq"
-              // ref={navLink1Tilt}
               onClick={(e) => {
                 e.preventDefault();
                 setCurrentPage(currentPage === "faq" ? "home" : "faq");
               }}
               className={`hidden md:block transition-colors text-sm sm:text-base ${themeClasses.textAccent} hover:opacity-80`}
-              // style={{ transformStyle: "preserve-3d" }}
             >
               Auction Details
-            </a>
-            <a
+            </a> */}
+            {/* <a
               href="https://quasar-8.gitbook.io/twilight-docs"
               target="_blank"
               rel="noopener noreferrer"
-              // ref={navLink2Tilt}
               className={`hidden md:block transition-colors text-sm sm:text-base ${themeClasses.textAccent} hover:opacity-80`}
-              // style={{ transformStyle: "preserve-3d" }}
             >
               Twilight Docs
-            </a>
+            </a> */}
 
             <button
               // ref={navButtonTilt}
@@ -487,42 +506,16 @@ function App() {
           </nav>
         </div>
 
-        {/* Mobile menu dropdown - Push content down */}
-        {mobileMenuOpen && (
+        {/* Mobile menu dropdown - DISABLED (no links to show) */}
+        {/* {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-800 bg-gray-900 shadow-xl">
             <div className="px-4 sm:px-6 py-4">
               <div className="flex flex-col gap-2">
-                <a
-                  href="/faq"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(currentPage === "faq" ? "home" : "faq");
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`transition-colors text-base font-medium py-2.5 px-4 rounded-lg ${
-                    currentPage === "faq"
-                      ? `${themeClasses.textAccent} ${themeClasses.bgAccent} bg-opacity-20`
-                      : "text-gray-300 hover:text-white hover:bg-gray-800"
-                  }`}
-                >
-                  Auction Details
-                </a>
-                <a
-                  href="https://quasar-8.gitbook.io/twilight-docs"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${themeClasses.textAccent} hover:opacity-80 transition-colors text-base font-medium py-2.5 px-4 rounded-lg hover:bg-gray-800`}
-                  onClick={() => {
-                    // Let the link work normally, just close menu
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  Twilight Docs
-                </a>
+                Links disabled
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </header>
 
       {/* AnnouncementBanner REMOVED */}
@@ -595,8 +588,7 @@ function App() {
             {/* <AnimatedSection delay={100} animation="fade-in-up"> */}
             <div>
               {auctionState === "pre-auction" ? (
-                // Changed from flex row with w-1/3 to grid with wider columns
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto mb-6 sm:mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 lg:gap-8 max-w-6xl mx-auto mb-8 sm:mb-10">
                   {" "}
                   <div className="w-full">
                     {/* <AnimatedSection delay={0}> */}
@@ -670,75 +662,15 @@ function App() {
                       {/* </AnimatedSection> */}
                     </div>
                   </div>
-                  <div className="w-full">
-                    {/* <AnimatedSection delay={0}> */}
-                    <div>
-                      {/* <TiltCard maxTilt={5} scale={1.02}> */}
-                      <div className="h-full">
-                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 sm:p-8 h-full cursor-pointer hover:border-blue-500/50 transition-colors">
-                          <div className="flex items-center gap-3 mb-3">
-                            <Coins
-                              className={`w-5 h-5 sm:w-6 sm:h-6 ${themeClasses.textAccent}`}
-                            />
-                            <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
-                              Token FDV
-                            </div>
-                          </div>
-                          <div className="flex flex-col gap-1">
-                            <div
-                              className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
-                            >
-                              $50 Million
-                            </div>
-                            <div className="font-body text-sm sm:text-base text-gray-500">
-                              Fully Diluted Valuation
-                            </div>
-                          </div>
-                        </div>
-                        {/* </TiltCard> */}
-                      </div>
-                      {/* </AnimatedSection> */}
-                    </div>
-                  </div>
+                  {/* Token FDV card DISABLED */}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                  {/* <AnimatedSection delay={0}> */}
-                  <div>
-                    {/* <TiltCard maxTilt={3} scale={1.01}> */}
+                <div className="mb-6 sm:mb-8 max-w-7xl mx-auto">
+                  {/* All Metrics - 3 equal cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                    {/* Token FDV */}
                     <div>
-                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
-                        <div className="flex items-center gap-2 mb-2">
-                          <HandCoins
-                            className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
-                          />
-                          <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
-                            Total Bids
-                          </div>
-                        </div>
-                        <div
-                          className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
-                        >
-                          {contract.nextBidId !== undefined ? (
-                            Number(
-                              contract.nextBidId > 0n ? contract.nextBidId : 0n
-                            ).toLocaleString()
-                          ) : contract.isLoading ? (
-                            <span className="text-gray-500">Loading...</span>
-                          ) : (
-                            <span className="text-gray-500">0</span>
-                          )}
-                        </div>
-                      </div>
-                      {/* </TiltCard> */}
-                    </div>
-                    {/* </AnimatedSection> */}
-                  </div>
-                  {/* <AnimatedSection delay={100}> */}
-                  <div>
-                    {/* <TiltCard maxTilt={3} scale={1.01}> */}
-                    <div>
-                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
+                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-5 sm:p-6 h-full cursor-pointer hover:border-opacity-60 transition-colors">
                         <div className="flex items-center gap-2 mb-2">
                           <Coins
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
@@ -762,15 +694,11 @@ function App() {
                           Fully Diluted Valuation at current auction price
                         </div>
                       </div>
-                      {/* </TiltCard> */}
                     </div>
-                    {/* </AnimatedSection> */}
-                  </div>
-                  {/* <AnimatedSection delay={200}> */}
-                  <div>
-                    {/* <TiltCard maxTilt={3} scale={1.01}> */}
+                    
+                    {/* Currency Raised */}
                     <div>
-                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 cursor-pointer">
+                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-5 sm:p-6 h-full cursor-pointer hover:border-opacity-60 transition-colors">
                         <div className="flex items-center gap-2 mb-2">
                           <Lock
                             className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
@@ -814,9 +742,57 @@ function App() {
                           )}
                         </div>
                       </div>
-                      {/* </TiltCard> */}
                     </div>
-                    {/* </AnimatedSection> */}
+                    
+                    {/* Total Bids Amount */}
+                    <div>
+                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-5 sm:p-6 h-full cursor-pointer hover:border-opacity-60 transition-colors">
+                        <div className="flex items-center gap-2 mb-2">
+                          <DollarSign
+                            className={`w-4 h-4 sm:w-5 sm:h-5 ${themeClasses.textAccent}`}
+                          />
+                          <div className="font-monoDisplay text-xs sm:text-sm text-gray-400 uppercase tracking-[0.2em]">
+                            Total Bids Amount
+                          </div>
+                        </div>
+                        <div
+                          className={`font-headline text-3xl sm:text-4xl md:text-5xl ${themeClasses.textAccent}`}
+                        >
+                          {isLoadingTotalBidsAmount ? (
+                            <span className="text-gray-500">Loading...</span>
+                          ) : totalBidsAmount !== undefined && totalBidsAmount !== null && totalBidsAmount > 0n ? (
+                            (() => {
+                              const value = Number(totalBidsAmount) / 1e18;
+                              const usdValue = ethUsdPrice
+                                ? value * ethUsdPrice
+                                : null;
+                              return (
+                                <div className="flex flex-col">
+                                  <span className="font-headline">
+                                    {value >= 1000
+                                      ? `${(value / 1000).toFixed(2)}K ETH`
+                                      : `${value.toFixed(4)} ETH`}
+                                  </span>
+                                  {usdValue !== null && (
+                                    <span className="font-body text-sm sm:text-base text-gray-400 mt-1">
+                                      $
+                                      {usdValue >= 1000
+                                        ? `${(usdValue / 1000).toFixed(2)}K`
+                                        : usdValue.toFixed(2)}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()
+                          ) : (
+                            <span className="text-gray-500">0 ETH</span>
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Total amount committed by all bidders
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -841,177 +817,196 @@ function App() {
             >
               {/* <AnimatedSection delay={200} animation="fade-in-up"> */}
               <div>
-                <div className="flex items-center justify-center sm:justify-start mb-3 sm:mb-4">
-                  <StateSlider
-                    value={auctionState}
-                    onChange={setAuctionState}
-                  />
-                </div>
+                {auctionState === "pre-auction" ? (
+                  /* Pre-Auction: Align StateSlider with card */
+                  <div className="flex justify-center mb-3 sm:mb-4">
+                    <div className="w-full max-w-4xl">
+                      <div className="flex justify-start">
+                        <StateSlider
+                          value={auctionState}
+                          onChange={setAuctionState}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center sm:justify-start mb-3 sm:mb-4">
+                    <StateSlider
+                      value={auctionState}
+                      onChange={setAuctionState}
+                    />
+                  </div>
+                )}
                 {/* </AnimatedSection> */}
               </div>
               {/* <AnimatedSection delay={300} animation="fade-in-up"> */}
               <div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 items-stretch">
-                  {/* <AnimatedSection delay={0} animation="fade-in"> */}
-                  <div>
-                    <div className="flex flex-col h-full">
-                      {auctionState === "post-auction" ? (
-                        <Swap
-                          poolDepth={swapData.poolDepth}
-                          maximumPrice={swapData.maximumPrice}
-                          slippage={swapData.slippage}
-                          volume24h={swapData.volume24h}
-                          disabled={true}
-                        />
-                      ) : auctionState === "auction-live" ? (
-                        <Auction
-                          countdown1={timeUntilBlockEnd}
-                          countdown2={timeUntilAuctionEnd}
-                          formatTime={formatTime}
-                          currentBlock={currentBlockInAuction}
-                          totalBlocks={AUCTION_CONFIG.duration.blocks}
-                          lastClearingPrice={
-                            contract.clearingPrice &&
-                            contract.clearingPrice > 0n
-                              ? parseFloat(
-                                  formatClearingPrice(contract.clearingPrice)
-                                )
-                              : 0
-                          }
-                          // Pass floor price from contract (convert from BigInt Q96 to number)
-                          floorPrice={
-                            contract.floorPrice
-                              ? Number(contract.floorPrice) / Number(2n ** 96n)
-                              : undefined
-                          }
-                          ethUsdPrice={ethUsdPrice}
-                          allocatedTokens={
-                            contract.totalCleared
-                              ? Number(contract.totalCleared)
-                              : 0
-                          }
-                          totalTokens={
-                            contract.totalSupply
-                              ? Number(contract.totalSupply)
-                              : 0
-                          }
-                          allocatedPercentage={allocatedPercentage}
-                        />
-                      ) : (
-                        /* ElectricBorder REPLACED with static border div */
-                        <div className="h-full rounded-2xl p-[2px] bg-gradient-to-br from-blue-500 to-purple-600">
-                          <div className="bg-gray-900 rounded-2xl p-6 h-full flex items-center justify-center">
-                            <div className="text-center">
-                              <h2 className="text-xl sm:text-2xl font-normal font-body text-gray-300 mb-4">
-                                Auction Starts In
-                              </h2>
+                {auctionState === "pre-auction" ? (
+                  /* Pre-Auction: Centered, wider card */
+                  <div className="flex justify-center">
+                    <div className="w-full max-w-4xl">
+                      <div className="h-full rounded-2xl p-[2px] bg-gradient-to-br from-blue-500 to-purple-600">
+                        <div className="bg-gray-900 rounded-2xl p-8 sm:p-10 md:p-12 h-full flex items-center justify-center">
+                          <div className="text-center w-full">
+                            <h2 className="text-xl sm:text-2xl md:text-3xl font-normal font-body text-gray-300 mb-6 sm:mb-8">
+                              Auction Starts In
+                            </h2>
 
-                              {/* Countdown Timer */}
-                              <div className="flex justify-center gap-2 sm:gap-4 mb-4">
-                                <div className="flex flex-col items-center">
-                                  <div
-                                    className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
-                                  >
-                                    {String(timeUntilAuction.days).padStart(
-                                      2,
-                                      "0"
-                                    )}
-                                  </div>
-                                  <div className="text-xs sm:text-sm text-gray-500 uppercase">
-                                    Days
-                                  </div>
+                            {/* Countdown Timer */}
+                            <div className="flex justify-center gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+                              <div className="flex flex-col items-center">
+                                <div
+                                  className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold ${themeClasses.textAccent}`}
+                                >
+                                  {String(timeUntilAuction.days).padStart(
+                                    2,
+                                    "0"
+                                  )}
                                 </div>
-                                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600">
-                                  :
-                                </div>
-                                <div className="flex flex-col items-center">
-                                  <div
-                                    className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
-                                  >
-                                    {String(timeUntilAuction.hours).padStart(
-                                      2,
-                                      "0"
-                                    )}
-                                  </div>
-                                  <div className="text-xs sm:text-sm text-gray-500 uppercase">
-                                    Hours
-                                  </div>
-                                </div>
-                                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600">
-                                  :
-                                </div>
-                                <div className="flex flex-col items-center">
-                                  <div
-                                    className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
-                                  >
-                                    {String(timeUntilAuction.minutes).padStart(
-                                      2,
-                                      "0"
-                                    )}
-                                  </div>
-                                  <div className="text-xs sm:text-sm text-gray-500 uppercase">
-                                    Mins
-                                  </div>
-                                </div>
-                                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600">
-                                  :
-                                </div>
-                                <div className="flex flex-col items-center">
-                                  <div
-                                    className={`text-2xl sm:text-3xl md:text-4xl font-bold ${themeClasses.textAccent}`}
-                                  >
-                                    {String(timeUntilAuction.seconds).padStart(
-                                      2,
-                                      "0"
-                                    )}
-                                  </div>
-                                  <div className="text-xs sm:text-sm text-gray-500 uppercase">
-                                    Secs
-                                  </div>
+                                <div className="text-xs sm:text-sm md:text-base text-gray-500 uppercase mt-2">
+                                  Days
                                 </div>
                               </div>
-
-                              <p className="text-sm sm:text-base text-gray-400 mb-2">
-                                Get ready to participate in the Twilight Token
-                                Auction
-                              </p>
-                              <p
-                                className={`text-sm sm:text-base ${themeClasses.textAccent} font-medium`}
-                              >
-                                {estimatedStartDate
-                                  ? estimatedStartDate.toLocaleDateString(
-                                      "en-US",
-                                      {
-                                        month: "long",
-                                        day: "numeric",
-                                        year: "numeric",
-                                      }
-                                    )
-                                  : "Loading..."}
-                              </p>
+                              <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-600 self-center">
+                                :
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div
+                                  className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold ${themeClasses.textAccent}`}
+                                >
+                                  {String(timeUntilAuction.hours).padStart(
+                                    2,
+                                    "0"
+                                  )}
+                                </div>
+                                <div className="text-xs sm:text-sm md:text-base text-gray-500 uppercase mt-2">
+                                  Hours
+                                </div>
+                              </div>
+                              <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-600 self-center">
+                                :
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div
+                                  className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold ${themeClasses.textAccent}`}
+                                >
+                                  {String(timeUntilAuction.minutes).padStart(
+                                    2,
+                                    "0"
+                                  )}
+                                </div>
+                                <div className="text-xs sm:text-sm md:text-base text-gray-500 uppercase mt-2">
+                                  Mins
+                                </div>
+                              </div>
+                              <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-600 self-center">
+                                :
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div
+                                  className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold ${themeClasses.textAccent}`}
+                                >
+                                  {String(timeUntilAuction.seconds).padStart(
+                                    2,
+                                    "0"
+                                  )}
+                                </div>
+                                <div className="text-xs sm:text-sm md:text-base text-gray-500 uppercase mt-2">
+                                  Secs
+                                </div>
+                              </div>
                             </div>
+
+                            <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-3 sm:mb-4">
+                              Get ready to participate in the Twilight Token
+                              Auction
+                            </p>
+                            <p
+                              className={`text-base sm:text-lg md:text-xl ${themeClasses.textAccent} font-medium`}
+                            >
+                              {estimatedStartDate
+                                ? estimatedStartDate.toLocaleDateString(
+                                    "en-US",
+                                    {
+                                      month: "long",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    }
+                                  )
+                                : "Loading..."}
+                            </p>
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
-                    {/* </AnimatedSection> */}
                   </div>
-                  {/* <AnimatedSection delay={150} animation="fade-in"> */}
-                  <div>
-                    <div className="flex flex-col gap-3 sm:gap-4 h-full">
-                      {auctionState === "auction-live" && (
-                        <MyBid activeBids={myBidData} />
-                      )}
-                      <MyPosition
-                        auctionState={auctionState}
-                        tokenBalance={myPositionData.tokenBalance}
-                        averageEntryPrice={myPositionData.averageEntryPrice}
-                        estimatedValue={myPositionData.estimatedValue}
-                      />
+                ) : (
+                  /* Auction Live & Post-Auction: 2/3 - 1/3 grid layout */
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8 items-start">
+                    {/* Left Column - Main Auction Component (2/3 width on large screens) */}
+                    <div className="lg:col-span-2">
+                      <div className="flex flex-col gap-4 sm:gap-5 lg:gap-6 h-full">
+                        {auctionState === "post-auction" ? (
+                          <Swap
+                            poolDepth={swapData.poolDepth}
+                            maximumPrice={swapData.maximumPrice}
+                            slippage={swapData.slippage}
+                            volume24h={swapData.volume24h}
+                            disabled={true}
+                          />
+                        ) : (
+                          <>
+                            <Auction
+                              countdown1={timeUntilBlockEnd}
+                              countdown2={timeUntilAuctionEnd}
+                              formatTime={formatTime}
+                              currentBlock={currentBlockInAuction}
+                              totalBlocks={AUCTION_CONFIG.duration.blocks}
+                              // Pass fallback value - Auction component uses hook internally for primary source
+                              lastClearingPrice={indexerClearingPriceEth ?? 0}
+                              // Pass floor price from contract (convert from BigInt Q96 to number)
+                              floorPrice={
+                                contract.floorPrice
+                                  ? Number(contract.floorPrice) / Number(2n ** 96n)
+                                  : undefined
+                              }
+                              ethUsdPrice={ethUsdPrice}
+                              allocatedTokens={
+                                contract.totalCleared
+                                  ? Number(contract.totalCleared)
+                                  : 0
+                              }
+                              totalTokens={
+                                contract.totalSupply
+                                  ? Number(contract.totalSupply)
+                                  : 0
+                              }
+                              allocatedPercentage={allocatedPercentage}
+                              totalBids={displayTotalBids}
+                              activeBidders={uniqueBidders}
+                              isLoadingBidders={isLoadingUniqueBidders}
+                            />
+                            {auctionState === "auction-live" && (
+                              <RecentBids limit={10} />
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
-                    {/* </AnimatedSection> */}
+                    
+                    {/* Right Column - User Actions & Info (1/3 width on large screens) */}
+                    <div className="lg:col-span-1">
+                      {auctionState === "auction-live" ? (
+                        <div className="flex flex-col gap-4 sm:gap-5 lg:sticky lg:top-4">
+                          <MyBid activeBids={myBidData} />
+                          <MyPosition
+                            auctionState={auctionState}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
+                )}
                 {/* </AnimatedSection> */}
               </div>
             </div>
@@ -1068,6 +1063,12 @@ function App() {
           </div>
         </div>
       </footer>
+      {/* Indexer Test Component - Remove after testing */}
+      {/*process.env.NODE_ENV === "development" && (
+        <div className="container mx-auto px-4 py-8">
+          <IndexerTest />
+        </div>
+      )*/}
       {/* Contract Connection Test - Remove after testing */}
       {/*ContractTest />*/}
     </div>
